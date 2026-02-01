@@ -9,6 +9,22 @@ import aramLogo from './assets/aram-hero-logo.png';
 import FormsOfAbuse from './pages/forms-of-abuse';
 import WitnessReport from './pages/WitnessReport';
 
+// Import new content pages
+import FormsOfAbuseNew from './pages/FormsOfAbuse';
+import HelpingOthers from './pages/HelpingOthers';
+import OnlineSafety from './pages/OnlineSafety';
+import ConsentStories from './pages/ConsentStories';
+import StalkingStories from './pages/StalkingStories';
+import MythsQuiz from './pages/MythsQuiz';
+import WarningSigns from './pages/WarningSigns';
+import SelfChecks from './pages/SelfChecks';
+import LeavingSafely from './pages/LeavingSafely';
+import SupportTypes from './pages/SupportTypes';
+import FinancialHelp from './pages/FinancialHelp';
+import LocalServices from './pages/LocalServices';
+import Helplines from './pages/Helplines';
+import Resources from './pages/Resources';
+
 // Import new layout components
 import AuthLayout from './components/layouts/AuthLayout';
 import DashboardLayout from './components/layouts/DashboardLayout';
@@ -155,8 +171,8 @@ const HomePage = () => {
           >
             {[
               { to: "/forms-of-abuse", text: "Understand Abuse" },
-              { to: "/victim-dashboard", text: "Seek Support" },
-              { to: "/healthcare-dashboard", text: "Provide Support" },
+              { to: "/victim-dashboard", text: "Recognize Abuse" },
+              { to: "/healthcare-dashboard", text: "Seek Support" },
               { to: "/stories", text: "Stories" }
             ].map((link, index) => (
               <motion.div key={link.to}>
@@ -379,219 +395,246 @@ const HomePage = () => {
         </div>
       </AnimatedSection>
 
-      {/* User Cards Section with stagger animation */}
-      <AnimatedSection className="user-cards-section">
-        <motion.div 
-          className="cards-container"
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-        >
-          {[
-            {
-              icon: "🛡️",
-              title: "Seek Support",
-              desc: "Access confidential resources, safety planning, and support tools",
-              path: "/victim-dashboard",
-              iconClass: "survivor-icon"
-            },
-            {
-              icon: "🤝",
-              title: "Provide Support", 
-              desc: "Tools and resources for friends, family, and supporters",
-              path: "/healthcare-dashboard",
-              iconClass: "supporter-icon"
-            },
-            {
-              icon: "📚",
-              title: "Understand Abuse",
-              desc: "Educational resources about intimate partner violence", 
-              path: "/forms-of-abuse",
-              iconClass: "professional-icon"
-            },
-            {
-              icon: "💬",
-              title: "Stories",
-              desc: "Read survivor stories and share your own journey",
-              path: "/stories", 
-              iconClass: "stories-icon"
-            }
-          ].map((card, index) => (
-            <motion.div
-              key={card.title}
-              className="user-card"
-              variants={fadeInUp}
-              onClick={() => handleCardClick(card.path)}
-              whileHover={cardHover}
-              whileTap={{ scale: 0.98 }}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-            >
-              <motion.div 
-                className={`card-icon ${card.iconClass}`}
-                whileHover={{ scale: 1.2, rotate: 10 }}
-                transition={{ duration: 0.3 }}
-              >
-                {card.icon}
-              </motion.div>
-              
-              <motion.h3 
-                className="card-title"
-                whileHover={{ color: "#DE638A" }}
-                transition={{ duration: 0.2 }}
-              >
-                {card.title}
-              </motion.h3>
-              
-              <p className="card-desc">{card.desc}</p>
-              
-              <motion.div 
-                className="card-arrow"
-                animate={{ x: [0, 5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
-              >
-                →
-              </motion.div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </AnimatedSection>
+      
 
-      {/* Safety Notice Section with attention-grabbing animations */}
-      <AnimatedSection className="safety-notice-section" delay={0.2}>
-        <motion.div 
-          className="safety-container"
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <motion.h2 
-            className="safety-title"
-            animate={{ 
-              textShadow: [
-                "0 0 0px rgba(74, 50, 103, 0.5)",
-                "0 0 10px rgba(74, 50, 103, 0.8)", 
-                "0 0 0px rgba(74, 50, 103, 0.5)"
-              ]
-            }}
-            transition={{ duration: 3, repeat: Infinity }}
-          >
-            Browsing this site safely
-          </motion.h2>
-          
-          <motion.p 
-            className="safety-text"
-            initial={{ opacity: 0, y: 20 }}
+      {/* Understand Abuse Section */}
+      <AnimatedSection className="understand-abuse-section">
+        <div className="section-container">
+          <motion.div 
+            className="section-header"
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            Remember: this website will appear on your search history. If you don't want this website 
-            to appear in your browsing history, you can open a new window in "Private" or "Incognito" mode. 
-            Make sure you also delete your browser history.
-          </motion.p>
-          
-          <motion.button 
-            onClick={() => navigate('/safety-guide')} 
-            className="safety-cta"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            whileHover={{ 
-              scale: 1.05,
-              boxShadow: "0 8px 25px rgba(222, 99, 138, 0.3)"
-            }}
-            whileTap={{ scale: 0.95 }}
-            viewport={{ once: true }}
-          >
-            Learn More Safety Actions
-          </motion.button>
-        </motion.div>
-      </AnimatedSection>
+            <h2 className="section-title">Understand abuse</h2>
+            <p className="section-subtitle">
+              Short explanations and real stories to help you recognize different forms of abuse.
+            </p>
+          </motion.div>
 
-      {/* Quick Links Cards Section with wave animation */}
-      <AnimatedSection className="quick-links-section" delay={0.3}>
-        <motion.div 
-          className="quick-links-container"
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-        >
-          {[
-            {
-              icon: "📋",
-              title: "Forms of Abuse",
-              text: "Learn about different types of intimate partner violence",
-              path: "/forms-of-abuse",
-              iconClass: "forms-icon"
-            },
-            {
-              icon: "⚖️", 
-              title: "Laws & Rights",
-              text: "Understand your legal rights and available protections",
-              path: "/laws",
-              iconClass: "laws-icon"
-            },
-            {
-              icon: "💡",
-              title: "Spotting & Tips", 
-              text: "Recognize warning signs and get practical safety tips",
-              path: "/tips",
-              iconClass: "tips-icon"
-            }
-          ].map((card, index) => (
-            <motion.div
-              key={card.title}
-              className="quick-link-card"
-              variants={fadeInUp}
-              onClick={() => handleCardClick(card.path)}
-              whileHover={{ 
-                scale: 1.03,
-                y: -5,
-                boxShadow: "0 15px 30px rgba(0, 0, 0, 0.15)"
-              }}
-              whileTap={{ scale: 0.98 }}
-              initial={{ opacity: 0, y: 50, rotateX: 45 }}
-              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-              transition={{ duration: 0.8, delay: index * 0.2 }}
-              viewport={{ once: true }}
-            >
-              <motion.div 
-                className={`quick-icon ${card.iconClass}`}
+          <motion.div 
+            className="content-grid"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            {[
+              {
+                title: "Forms of abuse",
+                desc: "Brief definitions of physical, emotional, sexual, financial and digital abuse.",
+                action: "Learn about abuse types",
+                path: "/forms-of-abuse"
+              },
+              {
+                title: "Helping a family or friend",
+                desc: "Simple, safe ways to support someone you think might be experiencing abuse.",
+                action: "See ways to help",
+                path: "/helping-others"
+              },
+              {
+                title: "Online safety",
+                desc: "Tips to protect your devices, accounts and online activity.",
+                action: "View safety tips",
+                path: "/online-safety"
+              },
+              {
+                title: "Stories of sexual consent",
+                desc: "Understand consent and your rights through survivor stories.",
+                action: "Read consent stories",
+                path: "/consent-stories"
+              },
+              {
+                title: "Stories of stalking and harassment",
+                desc: "Learn about stalking, harassment and your legal options.",
+                action: "Read survivor stories",
+                path: "/stalking-stories"
+              },
+              {
+                title: "Dispelling myths",
+                desc: "A short quiz to challenge common myths about domestic abuse.",
+                action: "Take the myths quiz",
+                path: "/myths-quiz"
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={item.title}
+                className="content-card"
+                variants={fadeInUp}
                 whileHover={{ 
-                  scale: 1.3, 
-                  rotate: [0, -10, 10, 0],
-                  transition: { duration: 0.5 }
+                  scale: 1.02,
+                  y: -5,
+                  boxShadow: "0 10px 25px rgba(74, 50, 103, 0.15)"
                 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleCardClick(item.path)}
               >
-                {card.icon}
+                <h3 className="content-card-title">{item.title}</h3>
+                <p className="content-card-desc">{item.desc}</p>
+                <motion.span 
+                  className="content-card-action"
+                  whileHover={{ x: 5 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {item.action} →
+                </motion.span>
               </motion.div>
-              
-              <motion.h3 
-                className="quick-title"
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.2 }}
+            ))}
+          </motion.div>
+        </div>
+      </AnimatedSection>
+
+      {/* Recognize Abuse Section */}
+      <AnimatedSection className="recognize-abuse-section">
+        <div className="section-container">
+          <motion.div 
+            className="section-header"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="section-title">Recognize abuse</h2>
+            <p className="section-subtitle">
+              Guidance and tools to help you notice warning signs early.
+            </p>
+          </motion.div>
+
+          <motion.div 
+            className="content-grid content-grid--two-col"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            {[
+              {
+                title: "Warning signs",
+                desc: "Learn about behaviour patterns, injuries and controlling actions that may signal abuse.",
+                action: "View warning signs",
+                path: "/warning-signs"
+              },
+              {
+                title: "Self checks",
+                desc: "Use short checklists and screenings to reflect on your situation or someone else's.",
+                action: "Take self assessment",
+                path: "/self-checks"
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={item.title}
+                className="content-card content-card--large"
+                variants={fadeInUp}
+                whileHover={{ 
+                  scale: 1.02,
+                  y: -5,
+                  boxShadow: "0 10px 25px rgba(74, 50, 103, 0.15)"
+                }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleCardClick(item.path)}
               >
-                {card.title}
-              </motion.h3>
-              
-              <p className="quick-text">{card.text}</p>
-              
-              <motion.span 
-                className="quick-link"
-                whileHover={{ x: 5 }}
-                transition={{ duration: 0.2 }}
+                <h3 className="content-card-title">{item.title}</h3>
+                <p className="content-card-desc">{item.desc}</p>
+                <motion.span 
+                  className="content-card-action"
+                  whileHover={{ x: 5 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {item.action} →
+                </motion.span>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </AnimatedSection>
+
+      {/* Seeking Support Section */}
+      <AnimatedSection className="seeking-support-section">
+        <div className="section-container">
+          <motion.div 
+            className="section-header"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="section-title">Seeking support</h2>
+            <p className="section-subtitle">
+              Practical information and services to help you plan next steps safely.
+            </p>
+          </motion.div>
+
+          <motion.div 
+            className="content-grid"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            {[
+              {
+                title: "Leaving an abusive relationship",
+                desc: "Step-by-step planning and safety tips if you are thinking about leaving.",
+                action: "Plan to leave safely",
+                path: "/leaving-safely"
+              },
+              {
+                title: "Types of support",
+                desc: "Learn about shelters, counselling, legal support and other services.",
+                action: "Explore support options",
+                path: "/support-types"
+              },
+              {
+                title: "Financial independence",
+                desc: "Information about financial abuse and building financial stability.",
+                action: "Learn about finances",
+                path: "/financial-help"
+              },
+              {
+                title: "Locate support",
+                desc: "Find local services, hospitals and community organisations near you.",
+                action: "Find local services",
+                path: "/local-services"
+              },
+              {
+                title: "National helplines",
+                desc: "24/7 helplines that can support you wherever you live.",
+                action: "View helplines",
+                path: "/helplines"
+              },
+              {
+                title: "Resources",
+                desc: "Extra reading, legal information and wellbeing resources.",
+                action: "Browse resources",
+                path: "/resources"
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={item.title}
+                className="content-card"
+                variants={fadeInUp}
+                whileHover={{ 
+                  scale: 1.02,
+                  y: -5,
+                  boxShadow: "0 10px 25px rgba(74, 50, 103, 0.15)"
+                }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleCardClick(item.path)}
               >
-                Learn More →
-              </motion.span>
-            </motion.div>
-          ))}
-        </motion.div>
+                <h3 className="content-card-title">{item.title}</h3>
+                <p className="content-card-desc">{item.desc}</p>
+                <motion.span 
+                  className="content-card-action"
+                  whileHover={{ x: 5 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {item.action} →
+                </motion.span>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
       </AnimatedSection>
 
       {/* Footer with slide up animation */}
@@ -673,7 +716,20 @@ function App() {
             <Route path="/" element={<HomePage />} />
             
             {/* Public Routes */}
-            <Route path="/forms-of-abuse" element={<FormsOfAbuse />} />
+            <Route path="/forms-of-abuse" element={<FormsOfAbuseNew />} />
+            <Route path="/helping-others" element={<HelpingOthers />} />
+            <Route path="/online-safety" element={<OnlineSafety />} />
+            <Route path="/consent-stories" element={<ConsentStories />} />
+            <Route path="/stalking-stories" element={<StalkingStories />} />
+            <Route path="/myths-quiz" element={<MythsQuiz />} />
+            <Route path="/warning-signs" element={<WarningSigns />} />
+            <Route path="/self-checks" element={<SelfChecks />} />
+            <Route path="/leaving-safely" element={<LeavingSafely />} />
+            <Route path="/support-types" element={<SupportTypes />} />
+            <Route path="/financial-help" element={<FinancialHelp />} />
+            <Route path="/local-services" element={<LocalServices />} />
+            <Route path="/helplines" element={<Helplines />} />
+            <Route path="/resources" element={<Resources />} />
             <Route path="/witness-report" element={<WitnessReport />} />
             
             {/* Authentication Routes */}
