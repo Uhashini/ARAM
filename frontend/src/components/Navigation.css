@@ -1,0 +1,128 @@
+.navigation {
+  width: 250px;
+  background-color: #2c3e50;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.navigation__header {
+  padding: 20px;
+  border-bottom: 1px solid #34495e;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navigation__header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.navigation__toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.navigation__list {
+  flex: 1;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navigation__item {
+  border-bottom: 1px solid #34495e;
+}
+
+.navigation__link {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  color: #bdc3c7;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.navigation__link:hover {
+  background-color: #34495e;
+  color: white;
+}
+
+.navigation__link--active {
+  background-color: #3498db;
+  color: white;
+}
+
+.navigation__icon {
+  margin-right: 12px;
+  font-size: 16px;
+}
+
+.navigation__label {
+  font-size: 14px;
+}
+
+.navigation__footer {
+  border-top: 1px solid #34495e;
+  padding: 20px;
+}
+
+.navigation__logout {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: none;
+  color: #bdc3c7;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.navigation__logout:hover {
+  color: white;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .navigation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%);
+  }
+  
+  .navigation--open {
+    transform: translateX(0);
+  }
+  
+  .navigation__toggle {
+    display: block;
+  }
+  
+  .navigation__header {
+    padding: 15px 20px;
+  }
+}
+
+/* Overlay for mobile */
+@media (max-width: 768px) {
+  .navigation--open::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 250px;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+  }
+}

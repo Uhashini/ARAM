@@ -1,0 +1,203 @@
+.witness-report {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  padding: 20px;
+}
+
+.witness-report__container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.witness-report__header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 40px;
+  text-align: center;
+}
+
+.witness-report__header h1 {
+  margin: 0 0 15px 0;
+  font-size: 28px;
+}
+
+.witness-report__header p {
+  margin: 0;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.witness-report__form {
+  padding: 40px;
+}
+
+.form-section {
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #eee;
+}
+
+.form-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.form-section h2 {
+  color: #2c3e50;
+  margin: 0 0 20px 0;
+  font-size: 20px;
+}
+
+.section-note {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.checkbox-label {
+  display: flex !important;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 0 !important;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto !important;
+  margin-right: 10px;
+  margin-bottom: 0;
+}
+
+.severity-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.contact-fields {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 1px solid #eee;
+}
+
+.witness-report__footer {
+  background-color: #fff3cd;
+  border-top: 3px solid #ffc107;
+  padding: 30px 40px;
+}
+
+.emergency-notice h3 {
+  color: #856404;
+  margin: 0 0 15px 0;
+  font-size: 18px;
+}
+
+.emergency-notice p {
+  color: #856404;
+  margin: 0 0 15px 0;
+}
+
+.emergency-contacts {
+  color: #721c24;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.emergency-contacts strong {
+  margin: 0 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .witness-report {
+    padding: 10px;
+  }
+  
+  .witness-report__header {
+    padding: 30px 20px;
+  }
+  
+  .witness-report__form {
+    padding: 30px 20px;
+  }
+  
+  .witness-report__footer {
+    padding: 20px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .emergency-contacts {
+    font-size: 14px;
+  }
+  
+  .emergency-contacts strong {
+    display: block;
+    margin: 5px 0;
+  }
+}

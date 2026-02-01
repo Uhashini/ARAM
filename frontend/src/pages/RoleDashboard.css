@@ -1,0 +1,193 @@
+.role-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.role-dashboard__header {
+  margin-bottom: 40px;
+}
+
+.role-dashboard__header h1 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.role-dashboard__header p {
+  color: #7f8c8d;
+  font-size: 16px;
+}
+
+.dashboard-section {
+  margin-bottom: 40px;
+}
+
+.dashboard-section h2 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.action-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.action-card {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.action-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.action-card h3 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.action-card p {
+  color: #7f8c8d;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.action-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.action-button:hover {
+  background-color: #2980b9;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card h3 {
+  font-size: 32px;
+  color: #3498db;
+  margin-bottom: 10px;
+}
+
+.stat-card p {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin: 0;
+}
+
+.progress-summary {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.progress-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.progress-item:last-child {
+  border-bottom: none;
+}
+
+.progress-item h4 {
+  color: #2c3e50;
+  margin: 0 0 5px 0;
+}
+
+.progress-item p {
+  color: #7f8c8d;
+  margin: 0;
+  font-size: 14px;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: #f39c12;
+  color: white;
+}
+
+.status-info {
+  background-color: #3498db;
+  color: white;
+}
+
+.resource-list {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.resource-item {
+  padding: 15px 0;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.resource-item:last-child {
+  border-bottom: none;
+}
+
+.resource-item h4 {
+  color: #2c3e50;
+  margin: 0 0 8px 0;
+}
+
+.resource-item p {
+  color: #7f8c8d;
+  margin: 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .action-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .progress-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .status-badge {
+    margin-top: 10px;
+  }
+}
