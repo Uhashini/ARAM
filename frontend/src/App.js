@@ -38,30 +38,40 @@ function App() {
         <Route path="/recognize-signs/victims" element={<RecognizeVictim />} />
         <Route path="/recognize-signs/witnesses" element={<RecognizeWitness />} />
 
-        {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
+        {/* Victim Protected Routes */}
+        <Route element={<ProtectedRoute allowedRoles={['victim', 'admin']} />}>
           <Route path="/victim-dashboard" element={<VictimDashboard />} />
           <Route path="/self-screen" element={<SelfScreening />} />
           <Route path="/journal" element={<Journal />} />
+          <Route path="/journal/new" element={<Journal />} />
         </Route>
 
-        {/* Public Role Dashboards */}
+        {/* Witness Dashboard (Public or Witness Role) */}
         <Route path="/witness" element={<WitnessDashboard />} />
-        <Route path="/healthcare" element={<HealthcareDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
 
-        {/* Public Resources */}
+        {/* Healthcare Protected Route */}
+        <Route element={<ProtectedRoute allowedRoles={['healthcare', 'admin']} />}>
+          <Route path="/healthcare" element={<HealthcareDashboard />} />
+        </Route>
+
+        {/* Admin Protected Route */}
+        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+        </Route>
+
+        {/* Public Resources (Explicitly handled to match home page buttons) */}
         <Route path="/resources/legal" element={<LegalResources />} />
         <Route path="/resources/shelters" element={<Shelters />} />
+        <Route path="/legal" element={<LegalResources />} />
+        <Route path="/shelters" element={<Shelters />} />
         <Route path="/helplines" element={<Helplines />} />
 
         {/* Feature Routes */}
         <Route path="/report-incident" element={<WitnessReport />} />
         <Route path="/forms-of-abuse" element={<FormsOfAbuse />} />
 
-        {/* Placeholders for now */}
-        <Route path="/self-assessment" element={<div className="container" style={{ padding: '100px' }}><h1>Self Assessment Tool</h1><p>Coming soon...</p></div>} />
-        <Route path="/helping-others" element={<div className="container" style={{ padding: '100px' }}><h1>How to Help Others</h1><p>Coming soon...</p></div>} />
+        {/* Safety Planning (Placeholder or mapped to existing) */}
+        <Route path="/safety-planning" element={<div className="container" style={{ padding: '100px' }}><h1>Safety Planning</h1><p>Creating a plan to stay safe. Checklist coming soon...</p></div>} />
 
         <Route path="/login" element={<Login />} />
       </Routes>

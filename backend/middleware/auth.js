@@ -1,80 +1,68 @@
-const authService = require('../services/authService');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-/**
- * Authentication middleware to verify JWT tokens
- * Adds user context to req.user if token is valid
- */
 const authenticate = async (req, res, next) => {
   try {
-    // Get token from Authorization header
     const authHeader = req.header('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
-        error: {
-          code: 'MISSING_TOKEN',
-          message: 'Access token is required',
-          timestamp: new Date().toISOString(),
-          requestId: req.id
-        }
+        error: { code: 'MISSING_TOKEN', message: 'Access token is required' }
       });
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    const token = authHeader.substring(7);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Validate token and get user context
-    const userContext = await authService.validateToken(token);
+    // Support both id and userId in payload for compatibility
+    const userId = decoded.id || decoded.userId;
 
-    // Add user context to request
-    req.user = userContext;
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Set user context
+    req.user = {
+      userId: user._id,
+      email: user.email,
+      role: user.role
+    };
     req.token = token;
 
     next();
   } catch (error) {
     console.error('Authentication error:', error.message);
-
-    // Determine appropriate error response
-    let statusCode = 401;
-    let errorCode = 'INVALID_TOKEN';
-    let message = 'Invalid or expired token';
-
-    if (error.message.includes('expired')) {
-      errorCode = 'TOKEN_EXPIRED';
-      message = 'Token has expired';
-    } else if (error.message.includes('Session not found')) {
-      errorCode = 'SESSION_EXPIRED';
-      message = 'Session has expired';
-    } else if (error.message.includes('User account is not active')) {
-      errorCode = 'ACCOUNT_INACTIVE';
-      message = 'User account is not active';
-    }
-
-    return res.status(statusCode).json({
+    return res.status(401).json({
       error: {
-        code: errorCode,
-        message: message,
-        timestamp: new Date().toISOString(),
-        requestId: req.id
+        code: 'INVALID_TOKEN',
+        message: 'Token validation failed: ' + error.message,
+        timestamp: new Date().toISOString()
       }
     });
   }
 };
 
-/**
- * Optional authentication middleware
- * Adds user context if token is present and valid, but doesn't require it
- */
 const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.header('Authorization');
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
-      const userContext = await authService.validateToken(token);
-      req.user = userContext;
-      req.token = token;
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      const userId = decoded.id || decoded.userId;
+      const user = await User.findById(userId);
+
+      if (user) {
+        req.user = {
+          userId: user._id,
+          email: user.email,
+          role: user.role
+        };
+        req.token = token;
+      }
     }
     next();
   } catch (error) {
-    // For optional auth, we don't return an error, just continue without user context
     console.warn('Optional authentication failed:', error.message);
     next();
   }
@@ -99,7 +87,7 @@ const requireRole = (roles) => {
     }
 
     const requiredRoles = Array.isArray(roles) ? roles : [roles];
-    
+
     if (!requiredRoles.includes(req.user.role)) {
       return res.status(403).json({
         error: {
@@ -136,7 +124,7 @@ const requirePermission = (permissions) => {
     const requiredPermissions = Array.isArray(permissions) ? permissions : [permissions];
     const userPermissions = req.user.permissions || [];
 
-    const hasAllPermissions = requiredPermissions.every(permission => 
+    const hasAllPermissions = requiredPermissions.every(permission =>
       userPermissions.includes(permission)
     );
 

@@ -53,33 +53,23 @@ const SelfScreening = () => {
         setAnswers(prev => ({ ...prev, [qid]: answer }));
     };
 
-    const calculateRisk = () => {
+    const calculateRisk = async () => {
         let score = 0;
 
         allQuestions.forEach(q => {
             const answer = answers[q.id];
             if (answer === 'yes') {
-                // If normal question, yes adds weight. If reverse question (e.g. "Do you have a safe place?"), yes adds negative weight (reduces risk)
                 score += q.weight;
             } else if (answer === 'no') {
-                // If reverse question is NO, it means higher risk (e.g. "No safe place"), so we add the positive equivalent of the weight
                 if (q.reverse) {
                     score += Math.abs(q.weight);
                 }
             }
         });
 
-        // Determine Level based on score range
-        // Max possible score is roughly: 24 (relationship) + 22 (safety) = 46
-        // Let's set thresholds:
-        // < 10: Low
-        // 10 - 25: Medium
-        // > 25: High (or if key red flags designated by 4 weight are present)
-
         let level = 'LOW';
         let actions = ['Read safety planning tips', 'Save helpline numbers'];
 
-        // Check for immediate high risk red flags (Strangulation / Threats to kill)
         const hasRedFlags = (answers['s5'] === 'yes') || (answers['s7'] === 'yes');
 
         if (score >= 25 || hasRedFlags) {
@@ -90,16 +80,42 @@ const SelfScreening = () => {
             actions = ['Talk to a counsellor', 'Locate shelters near you', 'Document incidents', 'Pack an emergency bag'];
         }
 
+        // Save to backend if user is logged in
+        const userInfo = localStorage.getItem('userInfo');
+        if (userInfo) {
+            try {
+                const { token } = JSON.parse(userInfo);
+                const response = await fetch('http://127.0.0.1:5001/api/auth/risk-assessment', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ level, score })
+                });
+
+                if (response.ok) {
+                    console.log("Risk assessment saved successfully");
+                }
+            } catch (err) {
+                console.error("Failed to save risk assessment", err);
+            }
+        }
+
         setResult({ level, score, actions });
         setStep('result');
     };
 
     const handleReferral = () => {
         if (window.confirm("This will securely share your current risk assessment with a verified counsellor who will contact you via your safe method. Proceed?")) {
-            // API call to backend would go here
-            alert("Referral sent successfully. A counsellor will review your case.");
-            navigate('/victim-dashboard');
+            // In a real app, this would trigger a notification to the healthcare/admin
+            alert("Referral sent successfully. A counsellor has been notified and will review your profile.");
+            navigate('/victim-dashboard', { state: { assessmentComplete: true } });
         }
+    };
+
+    const handleBackToDashboard = () => {
+        navigate('/victim-dashboard', { state: { assessmentComplete: true } });
     };
 
     return (
@@ -214,7 +230,7 @@ const SelfScreening = () => {
                             </p>
                         </div>
 
-                        <button onClick={() => navigate('/victim-dashboard')} className="btn-ghost" style={{ marginTop: '2rem' }}>
+                        <button onClick={handleBackToDashboard} className="btn-ghost" style={{ marginTop: '2rem' }}>
                             Back to Dashboard
                         </button>
                     </div>

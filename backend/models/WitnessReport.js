@@ -50,6 +50,11 @@ const witnessReportSchema = new mongoose.Schema({
     enum: ['pending', 'reviewed', 'action_taken', 'closed'],
     default: 'pending',
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false
+  },
   createdAt: {
     type: Date,
     default: Date.now,

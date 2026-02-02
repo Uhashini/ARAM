@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Shield, Lock, LogIn, AlertTriangle, Eye, FileText, PhoneCall, BookOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -8,6 +8,32 @@ import Accordion from '../components/Accordion';
 
 const WitnessDashboard = () => {
   const navigate = useNavigate();
+  const [reports, setReports] = useState([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      const userInfo = localStorage.getItem('userInfo');
+      if (userInfo) {
+        const parsedUser = JSON.parse(userInfo);
+        setUser(parsedUser);
+        try {
+          const response = await fetch('http://127.0.0.1:5001/api/witness/my-reports', {
+            headers: {
+              'Authorization': `Bearer ${parsedUser.token}`
+            }
+          });
+          const data = await response.json();
+          if (Array.isArray(data)) setReports(data);
+        } catch (err) {
+          console.error("Error fetching reports", err);
+        }
+      }
+      setLoading(false);
+    };
+    fetchReports();
+  }, []);
 
   return (
     <div className="app-container">
@@ -31,7 +57,7 @@ const WitnessDashboard = () => {
         <header style={{ marginBottom: '3rem', textAlign: 'center' }}>
           <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', color: 'var(--text-main)' }}>Witness Dashboard</h1>
           <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto' }}>
-            Your role as a witness is crucial. You can report incidents anonymously or access tools to intervene safely.
+            Your role as a witness is crucial. You can report incidents {user ? 'securely' : 'anonymously'} or access tools to intervene safely.
           </p>
         </header>
 
@@ -44,7 +70,7 @@ const WitnessDashboard = () => {
             </h2>
 
             <div className="action-cards-stack" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              {/* Anonymous Option */}
+              {/* Report Option */}
               <motion.div
                 className="feature-card"
                 whileHover={{ y: -5 }}
@@ -54,8 +80,8 @@ const WitnessDashboard = () => {
                   <FileText size={32} color="var(--primary-color)" />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Report Anonymously</h3>
-                  <p style={{ fontSize: '0.95rem', marginBottom: '1rem' }}>Submit incident details without revealing your identity.</p>
+                  <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Report Incident</h3>
+                  <p style={{ fontSize: '0.95rem', marginBottom: '1rem' }}>Submit details {user ? 'linked to your profile' : 'without revealing your identity'}.</p>
                   <button
                     className="btn-primary"
                     onClick={() => navigate('/report-incident')}
@@ -65,26 +91,63 @@ const WitnessDashboard = () => {
                 </div>
               </motion.div>
 
-              {/* Login Option */}
-              <motion.div
-                className="feature-card"
-                whileHover={{ y: -5 }}
-                style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '1.5rem', textAlign: 'left' }}
-              >
-                <div style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '1rem', borderRadius: '50%', flexShrink: 0 }}>
-                  <LogIn size={32} color="var(--accent-color)" />
-                </div>
-                <div>
-                  <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>View Previous Reports</h3>
-                  <p style={{ fontSize: '0.95rem', marginBottom: '1rem' }}>Login to track status and history.</p>
-                  <button
-                    className="btn-outline"
-                    onClick={() => navigate('/login')}
-                  >
-                    Login / Sign Up
-                  </button>
-                </div>
-              </motion.div>
+              {/* Login/History Option */}
+              {user ? (
+                <motion.div
+                  className="feature-card"
+                  whileHover={{ y: -5 }}
+                  style={{ padding: '2rem', borderTop: '4px solid var(--accent-color)' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                    <Eye size={24} color="var(--accent-color)" />
+                    <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Your Report History</h3>
+                  </div>
+                  {loading ? (
+                    <p>Loading reports...</p>
+                  ) : reports.length > 0 ? (
+                    <div style={{ maxHeight: '250px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                      {reports.map((report) => (
+                        <div key={report._id} style={{ padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                            <span style={{
+                              fontWeight: 'bold',
+                              color: report.status === 'pending' ? '#f59e0b' : '#10b981'
+                            }}>
+                              {report.status.toUpperCase()}
+                            </span>
+                            <span style={{ color: '#94a3b8' }}>{new Date(report.createdAt).toLocaleDateString()}</span>
+                          </div>
+                          <p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {report.incidentDescription}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={{ color: '#666', fontSize: '0.9rem', fontStyle: 'italic' }}>No reports submitted yet.</p>
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div
+                  className="feature-card"
+                  whileHover={{ y: -5 }}
+                  style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '1.5rem', textAlign: 'left' }}
+                >
+                  <div style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '1rem', borderRadius: '50%', flexShrink: 0 }}>
+                    <LogIn size={32} color="var(--accent-color)" />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>View Previous Reports</h3>
+                    <p style={{ fontSize: '0.95rem', marginBottom: '1rem' }}>Login to track status and history.</p>
+                    <button
+                      className="btn-outline"
+                      onClick={() => navigate('/login')}
+                    >
+                      Login / Sign Up
+                    </button>
+                  </div>
+                </motion.div>
+              )}
 
               {/* Local Resources Card */}
               <div style={{ background: '#fff', padding: '2rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
@@ -93,12 +156,8 @@ const WitnessDashboard = () => {
                 </h3>
                 <ul style={{ listStyle: 'none', padding: 0 }}>
                   <li style={{ marginBottom: '1rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.5rem' }}>
-                    <strong>National Commission for Women (NCW)</strong><br />
+                    <strong>National Commission for Women</strong><br />
                     <a href="tel:181" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>Call 181</a> (24/7 Helpline)
-                  </li>
-                  <li style={{ marginBottom: '1rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.5rem' }}>
-                    <strong>Tamil Nadu One Stop Centres</strong><br />
-                    <span style={{ fontSize: '0.9rem' }}>Integrated support for medical, legal, and shelter assistance.</span>
                   </li>
                   <li>
                     <strong>Police Control Room</strong><br />
@@ -119,50 +178,32 @@ const WitnessDashboard = () => {
               <Accordion title="Recognize Signs of Abuse" icon={Eye} defaultOpen={true}>
                 <p style={{ marginBottom: '1rem' }}>Look for these subtle indicators in your friends or neighbors:</p>
                 <ul style={{ paddingLeft: '1.2rem', margin: 0 }}>
-                  <li><strong>Physical:</strong> Unexplained bruises, wearing concealing clothing in summer.</li>
-                  <li><strong>Behavioral:</strong> Withdrawing from friends, rigid schedule, frequent check-ins with partner.</li>
-                  <li><strong>Financial:</strong> No access to money, partner controls all spending.</li>
+                  <li><strong>Physical:</strong> Unexplained bruises, wearing concealing clothing.</li>
+                  <li><strong>Behavioral:</strong> Withdrawing from circle, rigid schedule.</li>
+                  <li><strong>Financial:</strong> No access to money, partner controls spending.</li>
                 </ul>
               </Accordion>
 
               <Accordion title="Bystander Steps: The 3 D's" icon={AlertTriangle}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div style={{ padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem' }}>
-                    <strong>1. Distract</strong>
-                    <p style={{ fontSize: '0.9rem', margin: '0.25rem 0 0' }}>Spill a drink, ask for directions, or start a conversation to interrupt the moment safely.</p>
+                    <strong>1. Distract:</strong> Spill a drink or ask for directions.
                   </div>
                   <div style={{ padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem' }}>
-                    <strong>2. Delegate</strong>
-                    <p style={{ fontSize: '0.9rem', margin: '0.25rem 0 0' }}>Ask others to help. Alert security discreetly or call for backup if it exceeds your ability.</p>
+                    <strong>2. Delegate:</strong> Ask others to help or alert security.
                   </div>
                   <div style={{ padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem' }}>
-                    <strong>3. Direct</strong>
-                    <p style={{ fontSize: '0.9rem', margin: '0.25rem 0 0' }}>Directly ask the victim: "Are you okay?" or "Do you need help?"</p>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--danger)', marginTop: '0.5rem', fontStyle: 'italic' }}>
-                      ⚠️ <strong>India-Specific Warning:</strong> Direct intervention can sometimes escalate violence or turn the mob against the victim/intervener. Assess safety first.
-                    </p>
+                    <strong>3. Direct:</strong> Ask "Are you okay?" if safe.
                   </div>
                 </div>
               </Accordion>
 
-              <Accordion title="Documentation Tips" icon={FileText}>
-                <p style={{ marginBottom: '1rem' }}>If you witness abuse, your evidence can be vital. Document responsibly:</p>
-                <ul style={{ paddingLeft: '1.2rem', margin: 0 }}>
-                  <li><strong>Dates & Times:</strong> Keep a secure log of incidents.</li>
-                  <li><strong>Photos/Audio:</strong> Only record if it is safe to do so. Do not put yourself in harm's way.</li>
-                  <li><strong>Stick to Facts:</strong> Record exactly what you saw and heard ("He slapped her face") rather than interpretations ("He was angry").</li>
-                </ul>
-                <p style={{ marginTop: '1rem', fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary-color)' }}>
-                  You can upload this evidence in the "Report Incident" form.
-                </p>
-              </Accordion>
-
               <Accordion title="Safety Planning for Witnesses" icon={Lock}>
-                <p>Your safety matters too. Do not intervene physically if weapons are involved.</p>
+                <p>Your safety matters. Do not intervene physically if weapons are involved.</p>
                 <ul style={{ paddingLeft: '1.2rem', marginTop: '0.5rem' }}>
                   <li>Keep emergency numbers handy.</li>
                   <li>Maintain a safe distance.</li>
-                  <li>Trust your instincts—if it feels dangerous, call 100/181 immediately.</li>
+                  <li>Trust your instincts—call 100/181 if it feels dangerous.</li>
                 </ul>
               </Accordion>
             </div>

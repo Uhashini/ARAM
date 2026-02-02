@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
-const ProtectedRoute = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+const ProtectedRoute = ({ allowedRoles }) => {
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const location = useLocation();
+
     useEffect(() => {
-        // Check for user info in localStorage
+        // ... (rest of the code)
         const userInfo = localStorage.getItem('userInfo');
         if (userInfo) {
-            setIsAuthenticated(true);
+            setUser(JSON.parse(userInfo));
         }
         setLoading(false);
     }, []);
@@ -18,7 +20,24 @@ const ProtectedRoute = () => {
         return <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem' }}>Loading...</div>;
     }
 
-    return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+    // Not authenticated
+    if (!user) {
+        return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
+    // Role check
+    if (allowedRoles && !allowedRoles.includes(user.role)) {
+        // Redirect to their own dashboard if they try to access something disallowed
+        const dashboardMap = {
+            admin: '/admin',
+            healthcare: '/healthcare',
+            witness: '/witness',
+            victim: '/victim-dashboard'
+        };
+        return <Navigate to={dashboardMap[user.role] || '/'} replace />;
+    }
+
+    return <Outlet />;
 };
 
 export default ProtectedRoute;

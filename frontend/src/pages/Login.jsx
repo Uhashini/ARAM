@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Mail, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import Navigation from '../components/Navigation';
@@ -7,6 +7,10 @@ import '../App.css';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || null;
+  const message = location.state?.message || null;
+
   const API_URL = 'http://127.0.0.1:5001'; // Change to your deployed URL when ready
   const [isLogin, setIsLogin] = useState(true); // Toggle between Login and Signup
   const [formData, setFormData] = useState({
@@ -67,11 +71,17 @@ const Login = () => {
       if (response.ok) {
         // Success!
         localStorage.setItem('userInfo', JSON.stringify(data));
-        // Redirect based on role
-        if (data.role === 'admin') navigate('/admin');
-        else if (data.role === 'healthcare') navigate('/healthcare');
-        else if (data.role === 'witness') navigate('/witness');
-        else navigate('/victim-dashboard');
+
+        // Redirect logic
+        if (from) {
+          navigate(from, { replace: true });
+        } else {
+          // Default role-based redirection
+          if (data.role === 'admin') navigate('/admin');
+          else if (data.role === 'healthcare') navigate('/healthcare');
+          else if (data.role === 'witness') navigate('/witness');
+          else navigate('/victim-dashboard');
+        }
       } else {
         setError(data.message || 'Authentication failed');
       }
@@ -113,6 +123,16 @@ const Login = () => {
               {isLogin ? 'Securely access your dashboard' : 'Join ARAM for support and safety'}
             </p>
           </div>
+
+          {message && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#2563eb', padding: '1rem', borderRadius: '0.75rem', marginBottom: '1.5rem', fontSize: '0.95rem', textAlign: 'center', border: '1px solid rgba(59, 130, 246, 0.2)' }}
+            >
+              {message}
+            </motion.div>
+          )}
 
           {error && (
             <motion.div

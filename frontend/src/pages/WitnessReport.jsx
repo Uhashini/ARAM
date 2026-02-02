@@ -50,11 +50,19 @@ const WitnessReport = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:5001/api/witness/report', {
+      const userInfo = localStorage.getItem('userInfo');
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+
+      if (userInfo) {
+        const { token } = JSON.parse(userInfo);
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch('http://127.0.0.1:5001/api/witness/report', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify(formData),
       });
 

@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  riskAssessment: {
+    level: { type: String, enum: ['LOW', 'MEDIUM', 'HIGH', null], default: null },
+    score: { type: Number, default: 0 },
+    lastChecked: { type: Date }
+  }
 });
 
 // Encrypt password using bcrypt

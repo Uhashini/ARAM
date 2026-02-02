@@ -80,4 +80,51 @@ router.post('/login', async (req, res) => {
     }
 });
 
+const { authenticate } = require('../middleware/auth');
+
+// @desc    Get current user profile
+// @route   GET /api/auth/me
+// @access  Private
+router.get('/me', authenticate, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId).select('-password');
+        if (user) {
+            res.json(user);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// @desc    Update user risk assessment
+// @route   PUT /api/auth/risk-assessment
+// @access  Private
+router.put('/risk-assessment', authenticate, async (req, res) => {
+    const { level, score } = req.body;
+
+    try {
+        const user = await User.findById(req.user.userId);
+
+        if (user) {
+            user.riskAssessment = {
+                level,
+                score,
+                lastChecked: Date.now()
+            };
+
+            const updatedUser = await user.save();
+            res.json({
+                _id: updatedUser.id,
+                riskAssessment: updatedUser.riskAssessment
+            });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
 module.exports = router;

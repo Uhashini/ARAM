@@ -10,7 +10,6 @@ import aramLogo from '../assets/aram-hero-logo.png';
 
 const LandingPage = () => {
     const rolesRef = useRef(null);
-    const navigate = useNavigate();
 
     const scrollToRoles = () => {
         rolesRef.current?.scrollIntoView({ behavior: 'smooth' });

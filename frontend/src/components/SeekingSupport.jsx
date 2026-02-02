@@ -6,6 +6,20 @@ import '../App.css';
 const SeekingSupport = () => {
     const navigate = useNavigate();
 
+    const handleSupportClick = () => {
+        const userInfo = localStorage.getItem('userInfo');
+        if (!userInfo) {
+            navigate('/login', {
+                state: {
+                    from: { pathname: '/self-screen' },
+                    message: "Please Log In or Sign Up to take the Safety Assessment test."
+                }
+            });
+        } else {
+            navigate('/self-screen');
+        }
+    };
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -55,21 +69,21 @@ const SeekingSupport = () => {
                         <p>
                             Understand your rights, restraining orders, and legal protections available to you.
                         </p>
-                        <span className="btn-text" onClick={() => navigate('/legal')} style={{ cursor: 'pointer' }}>Get Legal Help →</span>
+                        <span className="btn-text" onClick={() => navigate('/resources/legal')} style={{ cursor: 'pointer' }}>Get Legal Help →</span>
                     </motion.div>
                     <motion.div className="support-card" variants={itemVariants} whileHover={{ x: 10 }}>
                         <h3>Find a Shelter</h3>
                         <p>
                             Locate safe housing and emergency shelters in your area.
                         </p>
-                        <span className="btn-text" onClick={() => navigate('/shelters')} style={{ cursor: 'pointer' }}>Find Shelter →</span>
+                        <span className="btn-text" onClick={() => navigate('/resources/shelters')} style={{ cursor: 'pointer' }}>Find Shelter →</span>
                     </motion.div>
                     <motion.div className="support-card" variants={itemVariants} whileHover={{ x: 10 }}>
                         <h3>Counseling</h3>
                         <p>
-                            Connect with professional counselors and support groups for emotional recovery.
+                            Connect with professional counselors and take a self-screening assessment for guidance.
                         </p>
-                        <span className="btn-text" onClick={() => navigate('/counseling')} style={{ cursor: 'pointer' }}>Find Support →</span>
+                        <span className="btn-text" onClick={handleSupportClick} style={{ cursor: 'pointer' }}>Take Safety Check →</span>
                     </motion.div>
                 </motion.div>
             </div>
