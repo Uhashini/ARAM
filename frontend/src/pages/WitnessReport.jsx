@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import './WitnessReport.css';
+import '../App.css'; // Ensure main styles are available
+import aramLogo from '../assets/aram-hero-logo.png';
 
 const WitnessReport = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     incidentDescription: '',
     location: '',
@@ -18,10 +23,11 @@ const WitnessReport = () => {
     },
     provideContact: false
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     if (name.startsWith('optionalContact.')) {
       const field = name.split('.')[1];
       setFormData(prev => ({
@@ -39,16 +45,55 @@ const WitnessReport = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // This will be implemented in task 4.1
-    console.log('Witness report submission:', formData);
-    alert('Report submission will be implemented in task 4.1');
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('http://localhost:5001/api/witness/report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        alert('Report submitted successfully. Thank you for your help.');
+        navigate('/witness'); // Redirect back to dashboard
+      } else {
+        const data = await response.json();
+        alert(`Error: ${data.message || 'Failed to submit report'}`);
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert('Failed to connect to the server. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="witness-report">
-      <div className="witness-report__container">
+    <div className="witness-report page-wrapper">
+      {/* Navigation */}
+      <nav className="navbar">
+        <div className="container nav-content">
+          <div className="logo">
+            <Link to="/">
+              <img src={aramLogo} alt="ARAM Logo" style={{ height: '40px' }} />
+            </Link>
+          </div>
+          <div className="nav-links">
+            <Link to="/witness" className="nav-link">Back to Dashboard</Link>
+          </div>
+        </div>
+      </nav>
+
+      <div className="witness-report__container container" style={{ marginTop: '2rem' }}>
+        <button onClick={() => navigate('/witness')} className="back-button" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: 'none', cursor: 'pointer', marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+          <ArrowLeft size={20} /> Back
+        </button>
+
         <div className="witness-report__header">
           <h1>Anonymous Incident Report</h1>
           <p>Your report helps us identify and respond to intimate partner violence. All information is confidential.</p>
@@ -57,7 +102,7 @@ const WitnessReport = () => {
         <form onSubmit={handleSubmit} className="witness-report__form">
           <div className="form-section">
             <h2>Incident Details</h2>
-            
+
             <div className="form-group">
               <label htmlFor="incidentDescription">
                 Describe what you witnessed *
@@ -141,7 +186,7 @@ const WitnessReport = () => {
 
           <div className="form-section">
             <h2>Risk Assessment</h2>
-            
+
             <div className="form-group">
               <label className="checkbox-label">
                 <input
@@ -174,7 +219,7 @@ const WitnessReport = () => {
             <p className="section-note">
               Providing contact information is completely optional. It may help us follow up if needed.
             </p>
-            
+
             <div className="form-group">
               <label className="checkbox-label">
                 <input
@@ -248,11 +293,11 @@ const WitnessReport = () => {
           </div>
 
           <div className="form-actions">
-            <button type="submit" className="btn btn-primary">
-              Submit Report
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? 'Submitting...' : 'Submit Report'}
             </button>
-            <button type="button" className="btn btn-secondary">
-              Save Draft
+            <button type="button" className="btn btn-secondary" onClick={() => navigate('/witness')}>
+              Cancel
             </button>
           </div>
         </form>
@@ -262,7 +307,7 @@ const WitnessReport = () => {
             <h3>🚨 Emergency Situation?</h3>
             <p>If someone is in immediate danger, call emergency services immediately.</p>
             <div className="emergency-contacts">
-              <strong>Emergency: 911</strong> | 
+              <strong>Emergency: 911</strong> |
               <strong>National Domestic Violence Hotline: 1-800-799-7233</strong>
             </div>
           </div>
