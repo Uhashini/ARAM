@@ -58,7 +58,7 @@ const RecognizeVictim = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: idx * 0.1 }}
                             style={{
-                                background: 'var(--white)',
+                                background: 'white',
                                 padding: '2.5rem',
                                 borderRadius: '1.25rem',
                                 boxShadow: 'var(--shadow-md)',
@@ -74,7 +74,7 @@ const RecognizeVictim = () => {
                     ))}
                 </div>
 
-                <div style={{ marginTop: '5rem', padding: '3.5rem', background: 'var(--white)', borderRadius: '2rem', boxShadow: 'var(--shadow-lg)', textAlign: 'center', border: '1px solid #e2e8f0' }}>
+                <div style={{ marginTop: '5rem', padding: '3.5rem', background: 'white', borderRadius: '2rem', boxShadow: 'var(--shadow-lg)', textAlign: 'center', border: '1px solid #e2e8f0' }}>
                     <h2 style={{ marginBottom: '1.5rem', color: 'var(--primary-color)' }}>You deserve to live without fear.</h2>
                     <p style={{ fontSize: '1.2rem', marginBottom: '2.5rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto 2.5rem' }}>
                         We have a private, secure screening tool that can help you assess your risk more clearly.

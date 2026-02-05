@@ -1,75 +1,26 @@
-/* Global Resets & Variables */
-:root {
-  --primary-color: #7c91e3;
-  /* Deeper lavender - strong CTAs, AA contrast */
-  --secondary-color: #c68ef2;
-  /* Muted lilac - hover states */
-  --accent-color: #f4a8c6;
-  /* Warmer rose - links/accents */
-  --background-color: #f5f1f8;
-  /* Soft neutral bg */
-  --text-main: #1a202c;
-  /* Near-black - crisp readability */
-  --text-secondary: #4a5568;
-  /* Darker gray - subtext */
-  --white: #ffffff;
-  --success: #68d391;
-  /* Deeper mint */
-  --warning: #f6ad55;
-  /* Toasted peach */
-  --danger: #fc8181;
-  /* Soft urgent red */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --radius: 0.75rem;
+/* ===================================
+   APP-SPECIFIC STYLES
+   Note: Design system variables are defined in index.css
+   =================================== */
 
-
-}
-
-/* Override default Vite/Index styles if necessary */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: var(--background-color);
-  color: var(--text-main);
-  display: block !important;
-  /* Override center alignment */
-  place-items: unset !important;
+/* App Container */
+.app-container {
   min-height: 100vh;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-color);
 }
 
-#root {
-  max-width: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  text-align: left !important;
-  width: 100%;
+main {
+  flex: 1;
 }
 
-/* Typography */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin: 0;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-p {
-  line-height: 1.6;
-  color: var(--text-secondary);
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
-  transition: all 0.2s ease;
+/* Typography Overrides (if needed beyond index.css) */
+.text-gradient {
+  background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Container */
@@ -120,49 +71,102 @@ a {
   color: var(--primary-color);
 }
 
+/* ===================================
+   BUTTON STYLES
+   =================================== */
+
 .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   background-color: var(--primary-color);
-  color: var(--white);
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
+  color: var(--surface-color);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-base);
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   background-color: var(--secondary-color);
+  color: var(--surface-color);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-base);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   background-color: transparent;
   color: var(--primary-color);
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-base);
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all var(--transition-base);
 }
 
 .btn-ghost:hover {
-  background-color: rgba(37, 99, 235, 0.1);
+  background-color: var(--primary-light);
 }
 
 .btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   background-color: transparent;
   color: var(--primary-color);
   border: 2px solid var(--primary-color);
-  padding: 0.6rem 1.4rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
+  padding: calc(var(--space-3) - 2px) calc(var(--space-6) - 2px);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-base);
   cursor: pointer;
+  transition: all var(--transition-base);
 }
 
 .btn-outline:hover {
   background-color: var(--primary-color);
-  color: var(--white);
+  color: var(--surface-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 /* Hero Section */
@@ -262,7 +266,7 @@ a {
 
 /* User Roles Section */
 .roles-section {
-  padding: 0 0 7rem 0 ;
+  padding: 0 0 7rem 0;
   background: linear-gradient(135deg, rgba(124, 145, 227, 0.1) 0%, rgba(198, 142, 242, 0.1) 100%);
   background-color: var(--background-color);
   margin-top: -1px;
@@ -282,10 +286,11 @@ a {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 2rem;
+
 }
 
 .role-card {
-  background: var(--white);
+  background: #ffffff;
   padding: 2rem;
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
@@ -294,6 +299,7 @@ a {
   display: flex;
   flex-direction: column;
   height: 100%;
+  border-radius: 0.7rem; /* or var(--radius-xl) if defined */
 }
 
 .role-card:hover {
@@ -404,8 +410,8 @@ a {
 
 .info-card {
   padding: 2rem;
-  background: var(--background-color);
-  border-radius: var(--radius);
+  background: white;
+  border-radius: 0.5rem;
   border: 1px solid rgba(0, 0, 0, 0.03);
 }
 
@@ -452,8 +458,8 @@ a {
 
 .feature-card {
   padding: 3rem;
-  border-radius: var(--radius);
-  background: var(--white);
+  border-radius: 0.5rem;
+  background: white;
   box-shadow: var(--shadow-md);
   text-align: left;
 }
@@ -483,7 +489,7 @@ a {
 .support-card {
   padding: 1.5rem;
   border-left: 4px solid var(--primary-color);
-  background: var(--white);
+  background: white;
   border-radius: 0 var(--radius) var(--radius) 0;
   box-shadow: var(--shadow-sm);
 }
@@ -538,22 +544,126 @@ a {
   font-weight: 600;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* ===================================
+   RESPONSIVE DESIGN
+   =================================== */
+
+/* Small Mobile (320px - 479px) */
+@media (max-width: 479px) {
   .hero-title {
-    font-size: 2.5rem;
+    font-size: var(--text-3xl);
   }
 
-  .nav-links {
-    display: none;
-    /* simple mobile hide for now */
+  .section-title {
+    font-size: var(--text-2xl);
+  }
+
+  .container {
+    padding: 0 var(--space-4);
+  }
+
+  .hero {
+    padding: var(--space-8) 0;
+  }
+
+  .roles-grid,
+  .info-grid,
+  .info-gridSupport {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile Large (480px - 767px) */
+@media (max-width: 767px) {
+  .hero-title {
+    font-size: var(--text-4xl);
+  }
+
+  .hero-subtitle {
+    font-size: var(--text-base);
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero-actions .btn-primary,
+  .hero-actions .btn-outline {
+    width: 100%;
+  }
+
+  .duel-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .hero {
+    padding: var(--space-12) 0;
+  }
+
+  .roles-section,
+  .info-section,
+  .recognize-section,
+  .support-section {
+    padding: var(--space-12) 0;
+  }
+
+  /* Touch-friendly buttons */
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline,
+  .btn-ghost {
+    min-height: 44px;
+    padding: var(--space-3) var(--space-5);
+  }
+}
+
+/* Tablet (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero-container {
+    gap: var(--space-8);
+  }
+
+  .roles-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .duel-grid {
     grid-template-columns: 1fr;
   }
+}
 
-  .hero {
-    padding: 3rem 0;
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+  .hero-container {
+    flex-direction: row;
+  }
+
+  .duel-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Large Desktop (1440px+) */
+@media (min-width: 1440px) {
+  .container {
+    max-width: 1400px;
+  }
+
+  .hero-title {
+    font-size: 4.5rem;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

@@ -58,7 +58,7 @@ const RecognizeWitness = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: idx * 0.1 }}
                             style={{
-                                background: 'var(--white)',
+                                background: 'white',
                                 padding: '2.5rem',
                                 borderRadius: '1.25rem',
                                 boxShadow: 'var(--shadow-md)',

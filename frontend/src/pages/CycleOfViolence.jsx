@@ -88,7 +88,7 @@ const CycleOfViolence = () => {
                     ))}
                 </div>
 
-                <div style={{ marginTop: '5rem', textAlign: 'center', padding: '3rem', borderRadius: '1.5rem', border: '2px dashed #cbd5e1' }}>
+                <div style={{ marginTop: '5rem', textAlign: 'center', padding: '3rem', borderRadius: '1.5rem', border: '2px dashed #cbd5e1',backgroundColor:"white" }}>
                     <h2 style={{ marginBottom: '1.5rem' }}>How to break the cycle?</h2>
                     <p style={{ maxWidth: '600px', margin: '0 auto 2rem', color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
                         Breaking the cycle is incredibly difficult and often requires outside support. We are here to help you plan your next steps safely.

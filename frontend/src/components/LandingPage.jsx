@@ -6,7 +6,7 @@ import RoleSelection from './RoleSelection';
 import UnderstandAbuse from './UnderstandAbuse';
 import RecognizeAbuse from './RecognizeAbuse';
 import SeekingSupport from './SeekingSupport';
-import aramLogo from '../assets/aram-hero-logo.png';
+import Navigation from './Navigation';
 
 const LandingPage = () => {
     const rolesRef = useRef(null);
@@ -23,22 +23,7 @@ const LandingPage = () => {
             </div>
 
             {/* Navigation */}
-            <nav className="navbar">
-                <div className="container nav-content">
-                    <div className="logo">
-                        <Link to="/">
-                            <img src={aramLogo} alt="ARAM Logo" style={{ height: '40px' }} />
-                        </Link>
-                        ARAM
-                    </div>
-                    <div className="nav-links">
-                        <a href="#about" className="nav-link">About</a>
-                        <a href="#resources" className="nav-link">Resources</a>
-                        <a href="#contact" className="nav-link">Contact</a>
-                        <button className="btn-primary" onClick={scrollToRoles}>Get Started</button>
-                    </div>
-                </div>
-            </nav>
+            <Navigation />
 
             <Hero onScrollToRoles={scrollToRoles} />
 
