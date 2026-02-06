@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import WitnessReport from './pages/WitnessReport';
+import WitnessReportDetail from './pages/WitnessReportDetail';
+import WitnessReportEdit from './pages/WitnessReportEdit';
 import FormsOfAbuse from './pages/FormsOfAbuse';
 // Import other pages as placeholders for now if they exist, or I can create simple placeholders
 // Based on file list, I have these:
@@ -68,6 +70,8 @@ function App() {
 
         {/* Feature Routes */}
         <Route path="/report-incident" element={<WitnessReport />} />
+        <Route path="/witness/report/:id" element={<WitnessReportDetail />} />
+        <Route path="/witness/report/:id/edit" element={<WitnessReportEdit />} />
         <Route path="/forms-of-abuse" element={<FormsOfAbuse />} />
 
         {/* Safety Planning (Placeholder or mapped to existing) */}

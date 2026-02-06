@@ -132,4 +132,9 @@ Remember: You are not alone, and help is available.`,
         approvalRequired: false
       },
       emergency: {
-    
+      }
+    }
+  ]
+};
+
+module.exports = seedData;

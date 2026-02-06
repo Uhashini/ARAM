@@ -11,6 +11,8 @@ const WitnessDashboard = () => {
   const [reports, setReports] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterSeverity, setFilterSeverity] = useState('all');
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -35,6 +37,30 @@ const WitnessDashboard = () => {
     fetchReports();
   }, []);
 
+  // Handle hash navigation for smooth scrolling
+  useEffect(() => {
+    if (window.location.hash) {
+      const id = window.location.hash.substring(1);
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }, []);
+
+  // Filter reports based on search and filters
+  const filteredReports = reports.filter(report => {
+    const matchesSearch = searchTerm === '' ||
+      report.incidentDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (report.location && report.location.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const matchesSeverity = filterSeverity === 'all' || report.severityLevel.toString() === filterSeverity;
+
+    return matchesSearch && matchesSeverity;
+  });
+
   return (
     <div className="app-container">
       {/* Navigation */}
@@ -47,7 +73,10 @@ const WitnessDashboard = () => {
           </div>
           <div className="nav-links">
             <Link to="/" className="nav-link">Home</Link>
-            <Link to="/resources" className="nav-link">Resources</Link>
+            <a href="#safe-intervention-tools" className="nav-link" onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('safe-intervention-tools')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}>Resources</a>
           </div>
         </div>
       </nav>
@@ -102,27 +131,160 @@ const WitnessDashboard = () => {
                     <Eye size={24} color="var(--accent-color)" />
                     <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Your Report History</h3>
                   </div>
+
+                  {/* Search and Filter Controls */}
+                  <div style={{ marginBottom: '1rem' }}>
+                    <input
+                      type="text"
+                      placeholder="Search reports by description or location..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        borderRadius: '0.5rem',
+                        border: '1px solid #e2e8f0',
+                        fontSize: '0.9rem',
+                        marginBottom: '0.75rem'
+                      }}
+                    />
+
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+
+                      <select
+                        value={filterSeverity}
+                        onChange={(e) => setFilterSeverity(e.target.value)}
+                        style={{
+                          padding: '0.5rem 0.75rem',
+                          borderRadius: '0.375rem',
+                          border: '1px solid #e2e8f0',
+                          fontSize: '0.85rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <option value="all">All Severity</option>
+                        <option value="1">Level 1 (Verbal)</option>
+                        <option value="2">Level 2</option>
+                        <option value="3">Level 3</option>
+                        <option value="4">Level 4</option>
+                        <option value="5">Level 5 (Severe)</option>
+                      </select>
+
+                      {(searchTerm || filterSeverity !== 'all') && (
+                        <button
+                          onClick={() => {
+                            setSearchTerm('');
+                            setFilterSeverity('all');
+                          }}
+                          style={{
+                            padding: '0.5rem 0.75rem',
+                            borderRadius: '0.375rem',
+                            border: '1px solid #e2e8f0',
+                            background: '#fee2e2',
+                            color: '#dc2626',
+                            fontSize: '0.85rem',
+                            cursor: 'pointer',
+                            fontWeight: '500'
+                          }}
+                        >
+                          Clear Filters
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
                   {loading ? (
                     <p>Loading reports...</p>
-                  ) : reports.length > 0 ? (
-                    <div style={{ maxHeight: '250px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                      {reports.map((report) => (
-                        <div key={report._id} style={{ padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                            <span style={{
-                              fontWeight: 'bold',
-                              color: report.status === 'pending' ? '#f59e0b' : '#10b981'
-                            }}>
-                              {report.status.toUpperCase()}
-                            </span>
-                            <span style={{ color: '#94a3b8' }}>{new Date(report.createdAt).toLocaleDateString()}</span>
+                  ) : filteredReports.length > 0 ? (
+                    <div style={{ maxHeight: '400px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {filteredReports.map((report) => (
+                        <div key={report._id} style={{ padding: '1rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
+                                <span style={{ color: '#94a3b8' }}>{new Date(report.createdAt).toLocaleDateString()}</span>
+                              </div>
+                              <p style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {report.incidentDescription}
+                              </p>
+                              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                <button
+                                  onClick={() => navigate(`/witness/report/${report._id}`)}
+                                  style={{
+                                    padding: '0.4rem 0.8rem',
+                                    fontSize: '0.8rem',
+                                    background: 'var(--primary-color)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '0.375rem',
+                                    cursor: 'pointer',
+                                    fontWeight: '500'
+                                  }}
+                                >
+                                  View
+                                </button>
+                                <button
+                                  onClick={() => navigate(`/witness/report/${report._id}/edit`)}
+                                  style={{
+                                    padding: '0.4rem 0.8rem',
+                                    fontSize: '0.8rem',
+                                    background: '#8b5cf6',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '0.375rem',
+                                    cursor: 'pointer',
+                                    fontWeight: '500'
+                                  }}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={async () => {
+                                    if (window.confirm('Are you sure you want to delete this report?')) {
+                                      try {
+                                        const userInfo = localStorage.getItem('userInfo');
+                                        const parsedUser = JSON.parse(userInfo);
+                                        const response = await fetch(`http://127.0.0.1:5001/api/witness/report/${report._id}`, {
+                                          method: 'DELETE',
+                                          headers: {
+                                            'Authorization': `Bearer ${parsedUser.token}`
+                                          }
+                                        });
+                                        if (response.ok) {
+                                          alert('Report deleted successfully');
+                                          setReports(reports.filter(r => r._id !== report._id));
+                                        } else {
+                                          alert('Failed to delete report');
+                                        }
+                                      } catch (err) {
+                                        console.error('Delete error:', err);
+                                        alert('Failed to delete report');
+                                      }
+                                    }
+                                  }}
+                                  style={{
+                                    padding: '0.4rem 0.8rem',
+                                    fontSize: '0.8rem',
+                                    background: '#dc2626',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '0.375rem',
+                                    cursor: 'pointer',
+                                    fontWeight: '500'
+                                  }}
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </div>
                           </div>
-                          <p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {report.incidentDescription}
-                          </p>
                         </div>
                       ))}
                     </div>
+                  ) : searchTerm || filterSeverity !== 'all' ? (
+                    <p style={{ color: '#666', fontSize: '0.9rem', fontStyle: 'italic', textAlign: 'center', padding: '2rem' }}>
+                      No reports match your search criteria. Try adjusting your filters.
+                    </p>
                   ) : (
                     <p style={{ color: '#666', fontSize: '0.9rem', fontStyle: 'italic' }}>No reports submitted yet.</p>
                   )}
@@ -169,7 +331,7 @@ const WitnessDashboard = () => {
           </div>
 
           {/* RIGHT COLUMN: Education / Tools */}
-          <div className="education-column">
+          <div className="education-column" id="safe-intervention-tools">
             <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <BookOpen size={24} color="var(--secondary-color)" /> Safe Intervention Tools
             </h2>

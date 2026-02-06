@@ -163,6 +163,9 @@ const Navigation = () => {
               </button>
               {activeDropdown === 'resources' && (
                 <div className="dropdown-menu" role="menu">
+                  <Link to="/witness#safe-intervention-tools" className="dropdown-item" role="menuitem">
+                    Safe Intervention Tools
+                  </Link>
                   <Link to="/resources/legal" className="dropdown-item" role="menuitem">
                     Legal Resources
                   </Link>
@@ -264,6 +267,9 @@ const Navigation = () => {
             {/* Mobile Resources Section */}
             <div className="mobile-section">
               <div className="mobile-section-title">Resources</div>
+              <Link to="/witness#safe-intervention-tools" className="mobile-link indent">
+                Safe Intervention Tools
+              </Link>
               <Link to="/resources/legal" className="mobile-link indent">
                 Legal Resources
               </Link>
