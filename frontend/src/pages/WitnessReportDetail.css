@@ -1,0 +1,460 @@
+/* 
+  WITNESS REPORT DETAIL: CASE FILE AESTHETIC
+  Matches WitnessDashboard design system
+*/
+
+.case-file-page {
+    background: #FAF8FC;
+    min-height: 100vh;
+    padding-bottom: 80px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.case-file-layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 32px;
+}
+
+@media (max-width: 992px) {
+    .case-file-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Navbar Internal Layout */
+.nav-container-fluid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.nav-left-zone {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.nav-logo-fluid {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.2s;
+}
+
+.nav-logo-fluid:hover {
+    transform: scale(1.05);
+}
+
+.nav-divider-v {
+    width: 1px;
+    height: 24px;
+    background: var(--divider-soft);
+}
+
+.nav-right-zone {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.secure-badge-fluid {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #4A5568;
+    background: #EDF2F7;
+    padding: 6px 14px;
+    border-radius: 50px;
+    text-transform: uppercase;
+}
+
+/* Header & Metadata */
+.case-header-section {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    border: 1px solid var(--divider-soft);
+    margin-bottom: 24px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+}
+
+.case-id-badge {
+    color: var(--primary-color);
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.case-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.case-title-row h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--text-main);
+}
+
+.meta-grid-horizontal {
+    display: flex;
+    gap: 32px;
+    border-top: 1px solid var(--divider-soft);
+    padding-top: 20px;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.meta-lbl {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+}
+
+.meta-val {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Status Chips */
+.status-chip-large {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background: #FFF9E6;
+    color: #D97706;
+    border: 1.5px solid #FDE68A;
+}
+
+.status-investigation {
+    background: #EBF5FF;
+    color: #2563EB;
+    border: 1.5px solid #BFDBFE;
+}
+
+.status-escalated {
+    background: #FEF2F2;
+    color: #DC2626;
+    border: 1.5px solid #FECACA;
+}
+
+.status-counselor {
+    background: #F5F3FF;
+    color: #7C3AED;
+    border: 1.5px solid #DDD6FE;
+}
+
+.status-closed {
+    background: #ECFDF5;
+    color: #059669;
+    border: 1.5px solid #A7F3D0;
+}
+
+/* Confidentiality Banner */
+.confidential-alert-banner {
+    background: #EBF8FF;
+    border: 1px solid #BEE3F8;
+    color: #2B6CB0;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 32px;
+}
+
+/* Structured Blocks */
+.case-content-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    border: 1px solid var(--divider-soft);
+    margin-bottom: 32px;
+}
+
+.content-block {
+    margin-bottom: 32px;
+}
+
+.content-block:last-child {
+    margin-bottom: 0;
+}
+
+.block-header {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.block-body {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text-main);
+    white-space: pre-wrap;
+}
+
+.divider-soft {
+    height: 1px;
+    background: var(--divider-soft);
+    margin: 24px 0;
+}
+
+/* Detail Info Grid */
+.detail-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.info-pill {
+    background: #FDFBFF;
+    border: 1px solid var(--divider-soft);
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.pill-lbl {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+    display: block;
+}
+
+.pill-val {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Risk Badge Styling */
+.risk-indicator-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    padding: 16px;
+    background: #FDFBFF;
+    border-radius: 12px;
+}
+
+.risk-badge {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-weight: 900;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.risk-low {
+    background: #ECFDF5;
+    color: #059669;
+}
+
+.risk-moderate {
+    background: #FFFBEB;
+    color: #D97706;
+}
+
+.risk-high {
+    background: #FFF7ED;
+    color: #EA580C;
+}
+
+.risk-critical {
+    background: #FEF2F2;
+    color: #DC2626;
+}
+
+/* Timeline Sidebar */
+.sidebar-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.panel-card {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid var(--divider-soft);
+}
+
+.panel-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Vertical Timeline */
+.timeline-track {
+    position: relative;
+    padding-left: 32px;
+}
+
+.timeline-track::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 5px;
+    bottom: 5px;
+    width: 2px;
+    background: var(--divider-soft);
+}
+
+.timeline-node {
+    position: relative;
+    margin-bottom: 32px;
+}
+
+.timeline-node:last-child {
+    margin-bottom: 0;
+}
+
+.node-dot {
+    position: absolute;
+    left: -32px;
+    width: 24px;
+    height: 24px;
+    background: white;
+    border: 2px solid var(--divider-soft);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    color: var(--text-tertiary);
+}
+
+.timeline-node.active .node-dot {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: var(--primary-light);
+}
+
+.timeline-node.done .node-dot {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.node-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.node-label {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+.node-meta {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+/* Action Buttons Wrap */
+.case-actions-drawer {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+}
+
+.btn-withdraw {
+    background: white;
+    border: 1.5px solid #FECACA;
+    color: #DC2626;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-withdraw:hover {
+    background: #FEF2F2;
+}
+
+.privacy-reassurance {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #059669;
+}
+
+/* Evidence Card */
+.evidence-grid-mini {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.evidence-file-card {
+    background: #FDFBFF;
+    border: 1px solid var(--divider-soft);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+}
+
+.evidence-file-card svg {
+    color: var(--primary-color);
+}
+
+.file-name {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    word-break: break-all;
+}

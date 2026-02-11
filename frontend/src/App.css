@@ -32,7 +32,7 @@ main {
 
 /* Navbar */
 .navbar {
-  background: var(--white);
+  background: var(--surface-color);
   box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
@@ -290,7 +290,7 @@ main {
 }
 
 .role-card {
-  background: #ffffff;
+  background: var(--surface-color);
   padding: 2rem;
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
@@ -299,7 +299,7 @@ main {
   display: flex;
   flex-direction: column;
   height: 100%;
-  border-radius: 0.7rem; /* or var(--radius-xl) if defined */
+  border-radius: var(--radius-lg);
 }
 
 .role-card:hover {
@@ -342,7 +342,7 @@ main {
 }
 
 .role-witness .role-btn {
-  background-color: rgba(37, 99, 235, 0.1);
+  background-color: var(--primary-light);
   color: var(--primary-color);
 }
 
@@ -356,7 +356,7 @@ main {
 }
 
 .role-victim .role-btn {
-  background-color: rgba(139, 92, 246, 0.1);
+  background-color: var(--accent-light);
   color: var(--accent-color);
 }
 
@@ -370,7 +370,7 @@ main {
 }
 
 .role-hospital .role-btn {
-  background-color: rgba(16, 185, 129, 0.1);
+  background-color: var(--success-bg);
   color: var(--success);
 }
 
@@ -384,7 +384,7 @@ main {
 }
 
 .role-admin .role-btn {
-  background-color: rgba(75, 85, 99, 0.1);
+  background-color: var(--border-light);
   color: var(--text-secondary);
 }
 
@@ -477,7 +477,7 @@ main {
 /* Seeking Support */
 .support-section {
   padding: 10rem 0 10rem 0;
-  background-color: #d3d6e4f6;
+  background-color: var(--primary-light);
 }
 
 .info-gridSupport {
