@@ -6,6 +6,7 @@ const fs = require('fs');
 const WitnessReport = require('../models/WitnessReport');
 const { authenticate, optionalAuth } = require('../middleware/auth');
 const { findNearestPoliceStation } = require('../utils/policeStationMapper');
+const { calculateRiskScore, determineDestinations } = require('../services/routingService');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -36,23 +37,6 @@ const upload = multer({
     limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
     fileFilter: fileFilter
 });
-
-// Helper to calculate risk score
-const calculateRiskScore = (data) => {
-    const { riskAssessment, accused, incidentDescription } = data;
-    let score = 'LOW';
-
-    if (riskAssessment?.isVictimInImmediateDanger) return 'EMERGENCY';
-    if (riskAssessment?.areChildrenAtRisk || accused?.hasWeapon === 'yes') return 'HIGH';
-    if (riskAssessment?.isAccusedNearby || riskAssessment?.hasSuicideThreats) return 'MEDIUM';
-
-    // Check for specific keywords in narrative if no flags set
-    const keywords = ['kill', 'weapon', 'hospital', 'fracture', 'threat'];
-    const narrative = incidentDescription?.toLowerCase() || '';
-    if (keywords.some(k => narrative.includes(k))) score = 'MEDIUM';
-
-    return score;
-};
 
 // Helper to suggest legal sections (India)
 const suggestLegalSections = (abuseTypes = []) => {
@@ -94,7 +78,31 @@ router.post('/report', optionalAuth, upload.array('evidence', 10), async (req, r
 
         // 1. Calculate Risk Score
         if (!reportData.riskAssessment) reportData.riskAssessment = {};
-        reportData.riskAssessment.riskScore = calculateRiskScore(reportData);
+
+        // Adapt witness data to routing service expected format if needed
+        // The routing service expects 'riskAssessment.indicators' but witness report has flat structure
+        // We can map it temporarily for calculation
+        const routingInput = {
+            ...reportData,
+            riskAssessment: {
+                indicators: {
+                    threatToKill: false, // Witness might not know
+                    weaponUse: reportData.accused?.hasWeapon === 'yes',
+                    suicideThreats: reportData.riskAssessment.hasSuicideThreats
+                }
+            },
+            perpetrator: reportData.accused,
+            medical: reportData.medical
+        };
+
+        reportData.riskAssessment.riskScore = calculateRiskScore(routingInput);
+
+        // 1.b Determine Destinations (Routing)
+        const destinations = determineDestinations(routingInput, reportData.riskAssessment.riskScore);
+        reportData.routing = {
+            destinations: destinations,
+            priorityLevel: (reportData.riskAssessment.riskScore === 'EXTREME' || reportData.riskAssessment.riskScore === 'HIGH') ? 'P1' : 'P2'
+        };
 
         // 2. Suggest Legal Sections
         reportData.suggestedLegalSections = suggestLegalSections(reportData.abuseType);
@@ -126,7 +134,8 @@ router.post('/report', optionalAuth, upload.array('evidence', 10), async (req, r
             riskScore: savedReport.riskAssessment.riskScore,
             suggestedLaws: savedReport.suggestedLegalSections,
             evidenceCount: savedReport.evidence?.length || 0,
-            assignedPoliceStation: savedReport.assignedPoliceStation
+            assignedPoliceStation: savedReport.assignedPoliceStation,
+            routing: savedReport.routing
         });
     } catch (err) {
         console.error('Error submitting witness report:', err);

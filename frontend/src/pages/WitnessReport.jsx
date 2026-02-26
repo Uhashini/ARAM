@@ -462,11 +462,10 @@ const WitnessReport = () => {
             </div>
 
             <div className="form-section-fluid">
-              <label className="section-title">Whose safety are you reporting for?</label>
+              <label className="section-title">Reporting Context</label>
               <div className="guided-chip-grid">
                 {[
-                  { id: 'witness', title: 'Witness', desc: 'I saw or heard an incident', icon: Eye },
-                  { id: 'victim', title: 'Self-Report', desc: 'I am the one affected', icon: Heart }
+                  { id: 'witness', title: 'Witness', desc: 'I saw or heard an incident', icon: Eye }
                 ].map(mode => (
                   <div
                     key={mode.id}

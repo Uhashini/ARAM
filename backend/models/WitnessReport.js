@@ -131,6 +131,15 @@ const witnessReportSchema = new mongoose.Schema({
     digitalSignature: String
   },
 
+  // K. Routing & Interventions (System Output)
+  routing: {
+    destinations: [{
+      type: String,
+      enum: ['Police', 'Hospital', 'Counselor', 'Shelter', 'LegalAid', 'OneStopCentre']
+    }],
+    priorityLevel: { type: String, enum: ['P1', 'P2', 'P3'], default: 'P3' }
+  },
+
   // System Fields
   status: {
     type: String,

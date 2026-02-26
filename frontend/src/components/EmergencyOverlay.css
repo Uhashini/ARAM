@@ -1,0 +1,387 @@
+/* EmergencyOverlay.css - Full-screen Emergency Protocol UI */
+
+/* ─── Overlay backdrop ─── */
+.emergency-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(127, 0, 0, 0.97);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: emergencyIn 0.25s ease;
+    overflow-y: auto;
+}
+
+@keyframes emergencyIn {
+    from {
+        opacity: 0;
+        transform: scale(1.04);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ─── Pulsing top bar ─── */
+.emergency-alert-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #dc2626;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+    animation: barPulse 1.2s ease-in-out infinite;
+    z-index: 10001;
+}
+
+@keyframes barPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.65;
+    }
+}
+
+/* ─── Main card ─── */
+.emergency-card {
+    background: #1a0000;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 40px 36px;
+    max-width: 600px;
+    width: 100%;
+    margin-top: 48px;
+    color: white;
+    text-align: center;
+}
+
+.emergency-shield-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.2);
+    border: 2px solid rgba(239, 68, 68, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    animation: shieldPulse 2s ease-in-out infinite;
+}
+
+@keyframes shieldPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 16px rgba(239, 68, 68, 0);
+    }
+}
+
+.emergency-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 8px;
+}
+
+.emergency-sub {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 32px;
+    line-height: 1.6;
+}
+
+/* ─── Action status list ─── */
+.action-status-list {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: left;
+    margin-bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.action-status-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-dot.queued {
+    background: #4b5563;
+}
+
+.status-dot.running {
+    background: #fbbf24;
+    animation: dotBlink 0.8s infinite;
+}
+
+.status-dot.success {
+    background: #34d399;
+}
+
+.status-dot.failed {
+    background: #ef4444;
+}
+
+.status-dot.retrying {
+    background: #fb923c;
+    animation: dotBlink 0.6s infinite;
+}
+
+/* legacy compat */
+.status-dot.pending {
+    background: #94a3b8;
+}
+
+.status-dot.sending {
+    background: #fbbf24;
+    animation: dotBlink 0.8s infinite;
+}
+
+.status-dot.done {
+    background: #34d399;
+}
+
+@keyframes dotBlink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.25;
+    }
+}
+
+/* ─── Emergency call buttons ─── */
+.call-buttons-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.call-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 14px 8px;
+    color: white;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+}
+
+.call-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.call-btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ─── Survival guidance  ─── */
+.survival-guide {
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid #fbbf24;
+    border-radius: 10px;
+    padding: 16px 20px;
+    text-align: left;
+    margin-bottom: 24px;
+}
+
+.survival-guide h4 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #fbbf24;
+    margin-bottom: 10px;
+}
+
+.survival-guide ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.survival-guide li {
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    line-height: 1.4;
+}
+
+.survival-guide li::before {
+    content: '→';
+    color: #fbbf24;
+    flex-shrink: 0;
+}
+
+/* ─── Disguise / Cancel row ─── */
+.emergency-footer {
+    display: flex;
+    gap: 12px;
+    flex-direction: column;
+}
+
+.btn-disguise {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    padding: 12px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+
+.btn-disguise:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.btn-cancel-emergency {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.btn-cancel-emergency:hover {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* ─── Disguise Safe Screen ─── */
+.disguise-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: sans-serif;
+    color: #333;
+    font-size: 2rem;
+    font-weight: 300;
+}
+
+.disguise-weather {
+    text-align: center;
+    padding: 40px;
+}
+
+.disguise-weather h1 {
+    font-size: 4rem;
+    margin-bottom: 8px;
+}
+
+.disguise-weather p {
+    font-size: 1rem;
+    color: #888;
+}
+
+/* ─── PIN Cancel Dialog ─── */
+.pin-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10002;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.pin-dialog {
+    background: #1e0000;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 20px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 360px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    animation: emergencyIn 0.2s ease;
+}
+
+.pin-input {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    border-radius: 10px;
+    color: white;
+    font-size: 1.2rem;
+    text-align: center;
+    letter-spacing: 0.3em;
+    outline: none;
+    margin-top: 8px;
+    box-sizing: border-box;
+}
+
+.pin-input:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.pin-input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+    letter-spacing: 0.05em;
+}

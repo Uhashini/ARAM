@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import WitnessReport from './pages/WitnessReport';
+import VictimReport from './pages/VictimReport';
 import WitnessReportDetail from './pages/WitnessReportDetail';
 import WitnessReportEdit from './pages/WitnessReportEdit';
 import FormsOfAbuse from './pages/FormsOfAbuse';
@@ -70,6 +71,7 @@ function App() {
 
         {/* Feature Routes */}
         <Route path="/report-incident" element={<WitnessReport />} />
+        <Route path="/report-victim" element={<VictimReport />} />
         <Route path="/witness/report/:id" element={<WitnessReportDetail />} />
         <Route path="/witness/report/:id/edit" element={<WitnessReportEdit />} />
         <Route path="/forms-of-abuse" element={<FormsOfAbuse />} />
