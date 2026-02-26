@@ -301,21 +301,6 @@ const WitnessReport = () => {
     { num: 7, label: 'Submit', icon: CheckCircle },
   ];
 
-  // Quick Exit Keyboard Shortcut (Esc x2)
-  useEffect(() => {
-    let escCount = 0;
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        escCount++;
-        if (escCount >= 2) {
-          window.location.href = 'https://www.google.com/search?q=weather+today';
-        }
-        setTimeout(() => { escCount = 0; }, 500);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
 
   const [formData, setFormData] = useState({
     reporterMode: 'witness',
@@ -402,6 +387,11 @@ const WitnessReport = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!window.confirm("Are you sure you want to submit this official witness report? This action will lodge a complaint with the authorities.")) {
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const userInfo = localStorage.getItem('userInfo');

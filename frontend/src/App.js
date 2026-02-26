@@ -18,6 +18,7 @@ import Helplines from './pages/Helplines';
 import SelfScreening from './pages/SelfScreening';
 import Journal from './pages/Journal';
 import ProtectedRoute from './components/ProtectedRoute';
+import useQuickExit from './hooks/useQuickExit';
 
 // Educational Pages
 import WhatIsIPV from './pages/WhatIsIPV';
@@ -29,6 +30,7 @@ import RecognizeWitness from './pages/RecognizeWitness';
 import './App.css';
 
 function App() {
+  useQuickExit();
   return (
     <Router>
       <Routes>
