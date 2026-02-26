@@ -25,7 +25,7 @@ const RecognizeAbuse = () => {
                     viewport={{ once: true }}
                     transition={{ delay: 0.2, duration: 0.6 }}
                 >
-                    Abuse can be subtle. Here are common indicators to look out for in yourself or others.
+                    <strong className="subtitle-emphasis">Abuse can be subtle.</strong> Here are common indicators to look out for in <span className="subtitle-highlight">yourself or others.</span>
                 </motion.p>
                 <div className="duel-grid">
                     <motion.div

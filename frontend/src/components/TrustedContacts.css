@@ -1,0 +1,461 @@
+/* TrustedContacts.css */
+
+.tc-card {
+    background: var(--glass-bg, rgba(255, 255, 255, 0.06));
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    color: #f1f5f9;
+}
+
+/* ─── Header ─── */
+.tc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.tc-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tc-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(167, 139, 250, 0.15);
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tc-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 2px;
+    color: #f1f5f9;
+}
+
+.tc-subtitle {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0;
+}
+
+.tc-btn-add {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(167, 139, 250, 0.15);
+    border: 1px solid rgba(167, 139, 250, 0.4);
+    color: #a78bfa;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.1s;
+    white-space: nowrap;
+}
+
+.tc-btn-add:hover:not(:disabled) {
+    background: rgba(167, 139, 250, 0.28);
+    transform: translateY(-1px);
+}
+
+.tc-btn-add:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ─── Toast ─── */
+.tc-toast {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    animation: tcFadeIn 0.2s ease;
+}
+
+.tc-toast--ok {
+    background: rgba(52, 211, 153, 0.12);
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    color: #34d399;
+}
+
+.tc-toast--err {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+@keyframes tcFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ─── Loading ─── */
+.tc-loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.85rem;
+    padding: 12px 0;
+}
+
+.tc-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #a78bfa;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ─── Empty state ─── */
+.tc-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 28px 16px;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* ─── List ─── */
+.tc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tc-item {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    transition: background 0.15s;
+}
+
+.tc-item:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.tc-item--unsafe {
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.tc-item-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c3aed, #a78bfa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.tc-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.tc-item-name {
+    font-weight: 700;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tc-unsafe-badge {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fbbf24;
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+
+.tc-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.tc-item-rel {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.tc-item-phone {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.55);
+    font-feature-settings: "tnum";
+}
+
+.tc-item-notes {
+    margin-top: 4px;
+    font-size: 0.73rem;
+    color: rgba(255, 255, 255, 0.35);
+    font-style: italic;
+}
+
+.tc-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.tc-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.tc-icon-btn--edit {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.tc-icon-btn--edit:hover {
+    background: rgba(167, 139, 250, 0.18);
+    color: #a78bfa;
+}
+
+.tc-icon-btn--del {
+    background: rgba(239, 68, 68, 0.07);
+    color: rgba(239, 68, 68, 0.6);
+    border-color: rgba(239, 68, 68, 0.15);
+}
+
+.tc-icon-btn--del:hover {
+    background: rgba(239, 68, 68, 0.18);
+    color: #ef4444;
+}
+
+.tc-icon-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.tc-confirm-delete {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: #fca5a5;
+}
+
+.tc-btn-confirm-yes {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 0.73rem;
+    cursor: pointer;
+}
+
+.tc-btn-confirm-no {
+    background: rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 0.73rem;
+    cursor: pointer;
+}
+
+/* ─── Inline editor ─── */
+.tc-editor {
+    background: rgba(167, 139, 250, 0.05);
+    border: 1px solid rgba(167, 139, 250, 0.25);
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+.tc-editor-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 540px) {
+    .tc-editor-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tc-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.tc-field label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.tc-field input,
+.tc-field select {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 9px;
+    color: white;
+    padding: 9px 12px;
+    font-size: 0.87rem;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.tc-field input:focus,
+.tc-field select:focus {
+    border-color: #a78bfa;
+}
+
+.tc-field input.error,
+.tc-field select.error {
+    border-color: #ef4444;
+}
+
+.tc-field select option {
+    background: #1e1e2e;
+    color: white;
+}
+
+.tc-error {
+    font-size: 0.7rem;
+    color: #f87171;
+    margin-top: 1px;
+}
+
+.tc-safe-toggle {
+    margin-top: 2px;
+}
+
+.tc-toggle-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.4;
+}
+
+.tc-toggle-label input[type="checkbox"] {
+    margin-top: 2px;
+    accent-color: #a78bfa;
+    flex-shrink: 0;
+}
+
+.tc-editor-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.tc-btn-save {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #7c3aed;
+    color: white;
+    border: none;
+    border-radius: 9px;
+    padding: 9px 18px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.tc-btn-save:hover {
+    background: #6d28d9;
+}
+
+.tc-btn-cancel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9px;
+    padding: 9px 14px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.tc-btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* ─── Footer hint ─── */
+.tc-footer-hint {
+    text-align: center;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
+    margin-top: 14px;
+    margin-bottom: 0;
+}
