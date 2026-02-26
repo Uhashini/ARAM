@@ -142,6 +142,11 @@ const WitnessReportEdit = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!window.confirm("Are you sure you want to update this testimony? These changes will be saved to the official case file.")) {
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -225,7 +230,7 @@ const WitnessReportEdit = () => {
                         </div>
                     </div>
                     <div className="nav-right-zone">
-                        <button className="quick-exit-trigger" onClick={() => window.location.href = 'https://www.google.com'}>
+                        <button className="quick-exit-trigger" onClick={() => window.location.href = 'https://www.google.com/search?q=weather+today'}>
                             Quick Exit
                         </button>
                     </div>

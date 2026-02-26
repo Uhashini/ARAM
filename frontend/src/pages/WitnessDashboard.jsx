@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Shield, Lock, PhoneCall, Clock, ArrowRight, ExternalLink, MapPin, Eye, FileText, ChevronRight } from 'lucide-react';
+import { Shield, Lock, PhoneCall, Clock, ArrowRight, ExternalLink, MapPin, Eye, FileText, ChevronRight, Search, Trash2, Edit } from 'lucide-react';
+import { DataGrid } from '@mui/x-data-grid';
+import { Box, TextField, InputAdornment, Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from '@mui/material';
 import '../App.css';
 import './WitnessDashboard.css';
 import aramLogo from '../assets/aram-hero-logo.png';
@@ -12,33 +14,144 @@ const WitnessDashboard = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filterSeverity, setFilterSeverity] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState(null);
+
+  const fetchReports = async () => {
+    const userInfo = localStorage.getItem('userInfo');
+    if (userInfo) {
+      const parsedUser = JSON.parse(userInfo);
+      setUser(parsedUser);
+      setLoading(true);
+      try {
+        const response = await fetch('http://127.0.0.1:5001/api/witness/my-reports', {
+          headers: {
+            'Authorization': `Bearer ${parsedUser.token}`
+          }
+        });
+        const data = await response.json();
+        if (Array.isArray(data)) setReports(data);
+      } catch (err) {
+        console.error("Error fetching reports", err);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchReports = async () => {
-      const userInfo = localStorage.getItem('userInfo');
-      if (userInfo) {
-        const parsedUser = JSON.parse(userInfo);
-        setUser(parsedUser);
-        try {
-          const response = await fetch('http://127.0.0.1:5001/api/witness/my-reports', {
-            headers: {
-              'Authorization': `Bearer ${parsedUser.token}`
-            }
-          });
-          const data = await response.json();
-          if (Array.isArray(data)) setReports(data);
-        } catch (err) {
-          console.error("Error fetching reports", err);
-        }
-      }
-      setLoading(false);
-    };
     fetchReports();
   }, []);
 
+  const handleDeleteClick = (report) => {
+    setReportToDelete(report);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!reportToDelete) return;
+
+    try {
+      const userInfo = localStorage.getItem('userInfo');
+      const { token } = JSON.parse(userInfo);
+
+      const response = await fetch(`http://127.0.0.1:5001/api/witness/report/${reportToDelete._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setReports(reports.filter(r => r._id !== reportToDelete._id));
+        setDeleteDialogOpen(false);
+        setReportToDelete(null);
+      } else {
+        alert('Failed to delete report');
+      }
+    } catch (err) {
+      console.error("Error deleting report", err);
+      alert('Error connecting to server');
+    }
+  };
+
+  const handleQuickExit = () => {
+    window.location.replace("https://www.google.com/search?q=weather+today");
+  };
+
   const filteredReports = reports.filter(report => {
-    return filterSeverity === 'all' || (report.riskAssessment?.riskScore === filterSeverity);
+    const matchesSeverity = filterSeverity === 'all' || (report.riskAssessment?.riskScore === filterSeverity);
+    const matchesSearch = !searchQuery ||
+      report.reportId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      report._id?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSeverity && matchesSearch;
   });
+
+  const columns = [
+    { field: 'reportId', headerName: 'Report ID', width: 150, renderCell: (params) => params.value || 'PENDING' },
+    {
+      field: 'createdAt',
+      headerName: 'Date',
+      width: 150,
+      valueGetter: (params, row) => new Date(row.createdAt).toLocaleDateString()
+    },
+    { field: 'location', headerName: 'Location', width: 250, renderCell: (params) => params.value || 'Reported Location' },
+    {
+      field: 'severity',
+      headerName: 'Severity',
+      width: 150,
+      renderCell: (params) => {
+        const score = params.row.riskAssessment?.riskScore;
+        let className = "status-badge info";
+        if (score === 'EMERGENCY') className = "status-badge warning";
+        else if (params.row.reportId) className = "status-badge success";
+
+        return <span className={className}>{score || 'SUBMITTED'}</span>;
+      }
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 200,
+      sortable: false,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => navigate(`/witness/report/${params.row._id}`)}
+            startIcon={<Eye size={14} />}
+            sx={{ textTransform: 'none', borderRadius: '8px' }}
+          >
+            View
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            color="primary"
+            onClick={() => navigate(`/witness/report/edit/${params.row._id}`)}
+            startIcon={<Edit size={14} />}
+            sx={{ textTransform: 'none', borderRadius: '8px' }}
+          >
+            Edit
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            color="error"
+            onClick={() => handleDeleteClick(params.row)}
+            startIcon={<Trash2 size={14} />}
+            sx={{ textTransform: 'none', borderRadius: '8px' }}
+          >
+            Delete
+          </Button>
+        </Box>
+      )
+    }
+  ];
 
   return (
     <div className="witness-dashboard-redesign">
@@ -64,6 +177,26 @@ const WitnessDashboard = () => {
             ) : (
               <Link to="/login" className="btn-login-fluid" style={{ color: 'var(--primary-color)', fontWeight: '700', textDecoration: 'none' }}>Login</Link>
             )}
+            <button
+              className="quick-exit-trigger"
+              onClick={handleQuickExit}
+              style={{
+                marginLeft: '15px',
+                padding: '6px 12px',
+                backgroundColor: 'var(--accent-color)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '0.8rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Shield size={14} /> Quick Exit
+            </button>
           </div>
         </div>
       </nav>
@@ -168,41 +301,116 @@ const WitnessDashboard = () => {
             {user ? (
               <div className="history-list-fluid">
                 <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Track your reports and access detailed FIR summaries securely.</p>
+
+                <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+                  <TextField
+                    placeholder="Search by Report ID..."
+                    variant="outlined"
+                    size="small"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    sx={{
+                      flexGrow: 1,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        backgroundColor: 'white',
+                      }
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search size={18} color="var(--text-tertiary)" />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <select
+                    className="severity-filter-select"
+                    value={filterSeverity}
+                    onChange={(e) => setFilterSeverity(e.target.value)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '12px',
+                      border: '1px solid #E2E8F0',
+                      backgroundColor: 'white',
+                      color: 'var(--text-secondary)',
+                      fontSize: '0.9rem',
+                      fontWeight: '500'
+                    }}
+                  >
+                    <option value="all">All Severities</option>
+                    <option value="EMERGENCY">Emergency</option>
+                    <option value="HIGH">High</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="LOW">Low</option>
+                  </select>
+                </Box>
+
                 <div className="trust-indicator-row">
                   <div className="trust-item"><Lock size={14} /> Encrypted</div>
                   <div className="trust-item"><Shield size={14} /> Anonymous Access</div>
                   <div className="trust-item"><FileText size={14} /> FIR Summaries</div>
                 </div>
-                {loading ? (
-                  <div>Loading history...</div>
-                ) : filteredReports.length > 0 ? (
-                  filteredReports.map(report => (
-                    <div key={report._id} className="history-item-fluid">
-                      <div className="history-meta">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                          <h4>Report #{report.reportId || 'PENDING'}</h4>
-                          {/* Semantic Status Badges */}
-                          {report.riskAssessment?.riskScore === 'EMERGENCY' ? (
-                            <span className="status-badge warning">Escalated</span>
-                          ) : report.reportId ? (
-                            <span className="status-badge success">FIR Generated</span>
-                          ) : (
-                            <span className="status-badge info">Submitted</span>
-                          )}
-                        </div>
-                        <p>{new Date(report.createdAt).toLocaleDateString()} • {report.location || 'Reported Location'}</p>
-                      </div>
-                      <button className="history-btn-view" onClick={() => navigate(`/witness/report/${report._id}`)}>
-                        View FIR Summary
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <div className="history-empty-fluid" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-tertiary)' }}>
-                    <FileText size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                    <p>No recent report activity found.</p>
-                  </div>
-                )}
+
+                <Box sx={{ height: 500, width: '100%', mt: 2, backgroundColor: 'white', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--divider-soft)' }}>
+                  <DataGrid
+                    rows={filteredReports}
+                    columns={columns}
+                    getRowId={(row) => row._id}
+                    pageSizeOptions={[5, 10, 20]}
+                    initialState={{
+                      pagination: { paginationModel: { pageSize: 10 } },
+                    }}
+                    loading={loading}
+                    disableRowSelectionOnClick
+                    sx={{
+                      border: 'none',
+                      '& .MuiDataGrid-columnHeaders': {
+                        backgroundColor: '#F8FAFC',
+                        color: 'var(--text-secondary)',
+                        fontWeight: '700',
+                      },
+                      '& .MuiDataGrid-cell': {
+                        borderBottom: '1px solid #F1F5F9',
+                      },
+                      '& .MuiDataGrid-footerContainer': {
+                        borderTop: '1px solid #F1F5F9',
+                      }
+                    }}
+                  />
+                </Box>
+
+                <Dialog
+                  open={deleteDialogOpen}
+                  onClose={() => setDeleteDialogOpen(false)}
+                  PaperProps={{
+                    style: { borderRadius: '16px', padding: '8px' }
+                  }}
+                >
+                  <DialogTitle sx={{ fontWeight: 700 }}>Confirm Deletion</DialogTitle>
+                  <DialogContent>
+                    <Typography variant="body1">
+                      Are you sure you want to delete report <strong>#{reportToDelete?.reportId || 'PENDING'}</strong>? This action cannot be undone.
+                    </Typography>
+                  </DialogContent>
+                  <DialogActions sx={{ p: 2, gap: 1 }}>
+                    <Button
+                      onClick={() => setDeleteDialogOpen(false)}
+                      variant="outlined"
+                      sx={{ borderRadius: '12px', textTransform: 'none', px: 3 }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={confirmDelete}
+                      variant="contained"
+                      color="error"
+                      sx={{ borderRadius: '12px', textTransform: 'none', px: 3, boxShadow: 'none' }}
+                    >
+                      OK, Delete
+                    </Button>
+                  </DialogActions>
+                </Dialog>
               </div>
             ) : (
               <div className="history-auth-upsell">
