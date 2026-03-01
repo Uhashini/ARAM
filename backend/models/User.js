@@ -34,21 +34,37 @@ const userSchema = new mongoose.Schema({
     level: { type: String, enum: ['LOW', 'MEDIUM', 'HIGH', null], default: null },
     score: { type: Number, default: 0 },
     lastChecked: { type: Date }
+  },
+  evidenceLockerPin: {
+    type: String,
+    default: null
   }
 });
 
-// Encrypt password using bcrypt
+// Encrypt password and evidenceLockerPin using bcrypt
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    next();
+  if (this.isModified('password')) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
   }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+
+  if (this.isModified('evidenceLockerPin') && this.evidenceLockerPin) {
+    const salt = await bcrypt.genSalt(10);
+    this.evidenceLockerPin = await bcrypt.hash(this.evidenceLockerPin, salt);
+  }
+
+  next();
 });
 
 // Match user entered password to hashed password in database
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Match user entered pin to hashed pin in database
+userSchema.methods.matchLockerPin = async function (enteredPin) {
+  if (!this.evidenceLockerPin) return false;
+  return await bcrypt.compare(enteredPin, this.evidenceLockerPin);
 };
 
 module.exports = mongoose.model('User', userSchema);

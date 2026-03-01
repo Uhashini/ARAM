@@ -63,6 +63,8 @@ app.use(cors(corsOptions));
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Add request ID middleware
 const { addRequestId } = require('./middleware/auth');
@@ -77,6 +79,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/witness', require('./routes/witnessRoutes'));
 app.use('/api/journal', require('./routes/journalRoutes'));
+app.use('/api/evidence', require('./routes/evidence.js'));
 // app.use('/api/victim', require('./routes/victimRoutes'));
 // app.use('/api/healthcare', require('./routes/healthcareRoutes'));
 // app.use('/api/admin', require('./routes/adminRoutes'));

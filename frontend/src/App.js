@@ -15,6 +15,10 @@ import Helplines from './pages/Helplines';
 import SelfScreening from './pages/SelfScreening';
 import Journal from './pages/Journal';
 import ProtectedRoute from './components/ProtectedRoute';
+import SafetyPlanner from './pages/SafetyPlanner';
+import StealthOverlay from './components/StealthOverlay';
+import EvidenceLocker from './pages/EvidenceLocker';
+import React, { useState, useEffect } from 'react';
 
 // Educational Pages
 import WhatIsIPV from './pages/WhatIsIPV';
@@ -23,59 +27,81 @@ import CycleOfViolence from './pages/CycleOfViolence';
 import RecognizeVictim from './pages/RecognizeVictim';
 import RecognizeWitness from './pages/RecognizeWitness';
 
+
+import LogicGatesGame from './components/LogicGatesGame';
 import './App.css';
 
 function App() {
+  const [stealthActive, setStealthActive] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Toggle stealth mode with Escape key
+      if (e.key === 'Escape') {
+        setStealthActive(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
+    <>
+      <StealthOverlay isVisible={stealthActive} onExit={() => setStealthActive(false)} />
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
 
-        {/* Educational Routes */}
-        <Route path="/understand-abuse/what-is-ipv" element={<WhatIsIPV />} />
-        <Route path="/understand-abuse/types" element={<TypesOfAbuse />} />
-        <Route path="/understand-abuse/cycle" element={<CycleOfViolence />} />
-        <Route path="/recognize-signs/victims" element={<RecognizeVictim />} />
-        <Route path="/recognize-signs/witnesses" element={<RecognizeWitness />} />
+          {/* Educational Routes */}
+          <Route path="/understand-abuse/what-is-ipv" element={<WhatIsIPV />} />
+          <Route path="/understand-abuse/types" element={<TypesOfAbuse />} />
+          <Route path="/understand-abuse/cycle" element={<CycleOfViolence />} />
+          <Route path="/recognize-signs/victims" element={<RecognizeVictim />} />
+          <Route path="/recognize-signs/witnesses" element={<RecognizeWitness />} />
 
-        {/* Victim Protected Routes */}
-        <Route element={<ProtectedRoute allowedRoles={['victim', 'admin']} />}>
-          <Route path="/victim-dashboard" element={<VictimDashboard />} />
-          <Route path="/self-screen" element={<SelfScreening />} />
-          <Route path="/journal" element={<Journal />} />
-          <Route path="/journal/new" element={<Journal />} />
-        </Route>
+          {/* Victim Protected Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['victim', 'admin']} />}>
+            <Route path="/victim-dashboard" element={<VictimDashboard />} />
+            <Route path="/self-screen" element={<SelfScreening />} />
+            <Route path="/journal" element={<Journal />} />
+            <Route path="/journal/new" element={<Journal />} />
+            <Route path="/evidence-locker" element={<EvidenceLocker />} />
+          </Route>
 
-        {/* Witness Dashboard (Public or Witness Role) */}
-        <Route path="/witness" element={<WitnessDashboard />} />
+          {/* Witness Dashboard (Public or Witness Role) */}
+          <Route path="/witness" element={<WitnessDashboard />} />
 
-        {/* Healthcare Protected Route */}
-        <Route element={<ProtectedRoute allowedRoles={['healthcare', 'admin']} />}>
-          <Route path="/healthcare" element={<HealthcareDashboard />} />
-        </Route>
+          {/* Healthcare Protected Route */}
+          <Route element={<ProtectedRoute allowedRoles={['healthcare', 'admin']} />}>
+            <Route path="/healthcare" element={<HealthcareDashboard />} />
+          </Route>
 
-        {/* Admin Protected Route */}
-        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-        </Route>
+          {/* Admin Protected Route */}
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+          </Route>
 
-        {/* Public Resources (Explicitly handled to match home page buttons) */}
-        <Route path="/resources/legal" element={<LegalResources />} />
-        <Route path="/resources/shelters" element={<Shelters />} />
-        <Route path="/legal" element={<LegalResources />} />
-        <Route path="/shelters" element={<Shelters />} />
-        <Route path="/helplines" element={<Helplines />} />
+          {/* Public Resources (Explicitly handled to match home page buttons) */}
+          <Route path="/resources/legal" element={<LegalResources />} />
+          <Route path="/resources/shelters" element={<Shelters />} />
+          <Route path="/legal" element={<LegalResources />} />
+          <Route path="/shelters" element={<Shelters />} />
+          <Route path="/helplines" element={<Helplines />} />
 
-        {/* Feature Routes */}
-        <Route path="/report-incident" element={<WitnessReport />} />
-        <Route path="/forms-of-abuse" element={<FormsOfAbuse />} />
+          {/* Feature Routes */}
+          <Route path="/report-incident" element={<WitnessReport />} />
+          <Route path="/forms-of-abuse" element={<FormsOfAbuse />} />
 
-        {/* Safety Planning (Placeholder or mapped to existing) */}
-        <Route path="/safety-planning" element={<div className="container" style={{ padding: '100px' }}><h1>Safety Planning</h1><p>Creating a plan to stay safe. Checklist coming soon...</p></div>} />
 
-        <Route path="/login" element={<Login />} />
-      </Routes>
-    </Router>
+          {/* Logic Gates Learning Game */}
+          <Route path="/learn-logic-gates" element={<LogicGatesGame />} />
+          {/* Safety Planning (Placeholder or mapped to existing) */}
+          <Route path="/safety-planning" element={<SafetyPlanner />} />
+
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 

@@ -146,28 +146,29 @@ const SelfScreening = () => {
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                                     {section.questions.map((q) => (
-                                        <div key={q.id} style={{ background: 'var(--white)', padding: '1.5rem', borderRadius: '0.75rem', boxShadow: 'var(--shadow-sm)' }}>
-                                            <p style={{ fontSize: '1.1rem', marginBottom: '1rem', fontWeight: '500' }}>{q.text}</p>
-                                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                        <div key={q.id} style={{
+                                            background: 'var(--white)',
+                                            padding: '1.25rem 1.5rem',
+                                            borderRadius: '0.75rem',
+                                            boxShadow: 'var(--shadow-sm)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            gap: '2rem'
+                                        }}>
+                                            <p style={{ fontSize: '1.05rem', fontWeight: '500', color: 'var(--text-main)', flex: 1 }}>
+                                                {q.text}
+                                            </p>
+                                            <div className="toggle-container">
                                                 <button
                                                     onClick={() => handleAnswer(q.id, 'yes')}
-                                                    style={{
-                                                        flex: 1, padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #e5e7eb', cursor: 'pointer',
-                                                        background: answers[q.id] === 'yes' ? 'var(--primary-color)' : 'white',
-                                                        color: answers[q.id] === 'yes' ? 'white' : 'inherit',
-                                                        fontWeight: answers[q.id] === 'yes' ? 'bold' : 'normal'
-                                                    }}
+                                                    className={`toggle-button ${answers[q.id] === 'yes' ? 'active-yes' : ''}`}
                                                 >
                                                     Yes
                                                 </button>
                                                 <button
                                                     onClick={() => handleAnswer(q.id, 'no')}
-                                                    style={{
-                                                        flex: 1, padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #e5e7eb', cursor: 'pointer',
-                                                        background: answers[q.id] === 'no' ? '#718096' : 'white',
-                                                        color: answers[q.id] === 'no' ? 'white' : 'inherit',
-                                                        fontWeight: answers[q.id] === 'no' ? 'bold' : 'normal'
-                                                    }}
+                                                    className={`toggle-button ${answers[q.id] === 'no' ? 'active-no' : ''}`}
                                                 >
                                                     No
                                                 </button>

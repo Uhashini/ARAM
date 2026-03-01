@@ -169,6 +169,52 @@ main {
   box-shadow: var(--shadow-md);
 }
 
+/* ===================================
+   TOGGLE / SEGMENTED CONTROL
+   =================================== */
+
+.toggle-container {
+  display: flex;
+  background-color: #f8fafc;
+  border-radius: var(--radius-full);
+  padding: 0.2rem;
+  border: 1px solid var(--border-light);
+  width: 140px;
+  /* Fixed smaller width for side placement */
+  flex-shrink: 0;
+}
+
+.toggle-button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.4rem 0.5rem;
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-base);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.toggle-button.active-yes {
+  background-color: var(--success);
+  color: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle-button.active-no {
+  background-color: #94a3b8;
+  /* Slate 400 */
+  color: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+
+.toggle-button:hover:not(.active-yes):not(.active-no) {
+  background-color: #f1f5f9;
+}
+
 /* Hero Section */
 .hero {
   padding: 0 0 0 0;
@@ -299,7 +345,8 @@ main {
   display: flex;
   flex-direction: column;
   height: 100%;
-  border-radius: 0.7rem; /* or var(--radius-xl) if defined */
+  border-radius: 0.7rem;
+  /* or var(--radius-xl) if defined */
 }
 
 .role-card:hover {

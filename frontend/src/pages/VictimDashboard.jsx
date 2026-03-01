@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, Book, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Shield, Book, AlertTriangle, CheckCircle, FolderLock } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import '../App.css';
 
@@ -142,6 +142,60 @@ const VictimDashboard = () => {
                 </button>
               </div>
             )}
+          </motion.div>
+          {/* CARD 3: Safety Planner - NEW FEATURE */}
+          <motion.div
+            whileHover={{ y: -5 }}
+            className="dashboard-card"
+            style={{
+              background: 'linear-gradient(135deg, var(--white) 0%, #fefce8 100%)',
+              padding: '2rem',
+              borderRadius: '1rem',
+              boxShadow: 'var(--shadow-md)',
+              borderTop: '4px solid #facc15'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.4rem' }}>Safety Plan</h2>
+              <Shield size={28} color="#facc15" />
+            </div>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', minHeight: '3rem' }}>
+              Create a personalized digital go-bag and secret communication plan.
+            </p>
+            <button
+              onClick={() => navigate('/safety-planning')}
+              className="btn-primary"
+              style={{ width: '100%', background: '#facc15', color: '#854d0e', border: 'none' }}
+            >
+              Update Safety Plan
+            </button>
+          </motion.div>
+          {/* CARD 5: Evidence Locker - NEW FEATURE */}
+          <motion.div
+            whileHover={{ y: -5 }}
+            className="dashboard-card"
+            style={{
+              background: 'linear-gradient(135deg, var(--white) 0%, #f0fdf4 100%)',
+              padding: '2rem',
+              borderRadius: '1rem',
+              boxShadow: 'var(--shadow-md)',
+              borderTop: '4px solid #10b981'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.4rem' }}>Evidence Locker</h2>
+              <FolderLock size={28} color="#10b981" />
+            </div>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', minHeight: '3rem' }}>
+              Securely store photos, documents, and proof that isn't saved in your phone.
+            </p>
+            <button
+              onClick={() => navigate('/evidence-locker')}
+              className="btn-primary"
+              style={{ width: '100%', background: '#10b981', color: 'white', border: 'none' }}
+            >
+              Open Locker
+            </button>
           </motion.div>
 
           {/* CARD 4: Journal - HIGHLIGHTED AS WELL */}

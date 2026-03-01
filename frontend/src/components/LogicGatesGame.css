@@ -1,0 +1,44 @@
+.logic-gates-game {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  padding: 2rem;
+  background: #f7faff;
+  min-height: 100vh;
+}
+.logic-gates-game h1 {
+  color: #2a4d69;
+  text-align: center;
+}
+.gate-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
+  margin: 2rem auto;
+  max-width: 400px;
+  padding: 1.5rem;
+  transition: box-shadow 0.2s;
+}
+.gate-card:hover {
+  box-shadow: 0 4px 16px rgba(44, 62, 80, 0.16);
+}
+.gate-card h2 {
+  color: #41729f;
+  margin-bottom: 0.5rem;
+}
+.gate-card p {
+  color: #555;
+  margin-bottom: 1rem;
+}
+.gate-card table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.5rem;
+}
+.gate-card th, .gate-card td {
+  border: 1px solid #cbe2f7;
+  padding: 0.5rem;
+  text-align: center;
+}
+.gate-card th {
+  background: #e3f0fc;
+  color: #2a4d69;
+}
