@@ -11,6 +11,7 @@
     "test:server": "cd backend && npm test",
     "test:client": "cd frontend && npm test -- --watchAll=false",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+   
   },
   "devDependencies": {
     "autoprefixer": "^10.4.22",
