@@ -142,6 +142,48 @@
     margin-bottom: 3.5rem;
 }
 
+.dashboard-tabs {
+    display: flex;
+    gap: 12px;
+    margin-top: 40px;
+}
+
+.dashboard-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: 1px solid var(--divider-soft);
+    background: white;
+    color: var(--text-secondary);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dashboard-tab-btn:hover {
+    background: #f8fafc;
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+}
+
+.dashboard-tab-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 10px 20px var(--primary-light);
+}
+
+.dashboard-tab-btn svg {
+    opacity: 0.8;
+}
+
+.dashboard-tab-btn.active svg {
+    opacity: 1;
+}
+
 .hero-cta-area {
     display: flex;
     align-items: center;
@@ -193,6 +235,111 @@
 .trigger-info p {
     color: var(--text-secondary);
     font-size: 1rem;
+}
+
+/* Insights Dashboard - Analytical Section */
+.insights-dashboard-fluid {
+    padding: 80px 48px;
+    background: #fff;
+    border-radius: 40px;
+    border: 1px solid var(--divider-soft);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.02);
+    margin-top: 40px;
+}
+
+.insights-header-flow {
+    margin-bottom: 64px;
+    text-align: center;
+}
+
+.insights-header-flow h3 {
+    font-size: 2.75rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+    color: var(--text-main);
+    letter-spacing: -0.04em;
+}
+
+.insights-header-flow p {
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.analytics-layout-fluid {
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+}
+
+.analytics-row-fluid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+}
+
+.analytics-card-fluid {
+    background: transparent;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+}
+
+.analytics-card-fluid:hover {
+    transform: none;
+}
+
+.analytics-card-fluid.wide {
+    border-top: 1px solid var(--divider-soft);
+    padding-top: 60px;
+}
+
+.analytics-card-fluid h4 {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 48px;
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* Ensure charts align well with the new centered style */
+.recharts-responsive-container {
+    margin: 0 auto;
+}
+
+.loading-state-fluid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 0;
+    gap: 20px;
+}
+
+.spinner-fluid {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--primary-light);
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .btn-trigger-fluid {
@@ -477,6 +624,12 @@
     background: radial-gradient(circle at center, var(--secondary-light) 0%, rgba(250, 248, 252, 0) 70%);
 }
 
+.history-container-constrained {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
 .section-divider-top {
     height: 1px;
     background: var(--divider-soft);
@@ -718,7 +871,9 @@
     .toolkit-intro h3 {
         font-size: 2.5rem;
     }
-}/* Activity History Mobile Responsive Styles */
+}
+
+/* Activity History Mobile Responsive Styles */
 @media (max-width: 768px) {
     .history-section-fluid {
         padding: 60px 0;
@@ -827,4 +982,235 @@
         width: 36px !important;
         height: 36px !important;
     }
+}
+
+/* Secure Evidence Vault Section */
+.evidence-vault-section {
+    padding: 80px 0;
+    border-bottom: 1px solid var(--divider-soft);
+}
+
+.vault-header {
+    margin-bottom: 40px;
+}
+
+.vault-title-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+}
+
+.vault-header h3 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.vault-header p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.evidence-vault-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 32px;
+}
+
+.vault-item-container {
+    background: white;
+    border-radius: 24px;
+    padding: 12px;
+    border: 1px solid var(--divider-soft);
+    transition: all 0.3s ease;
+}
+
+.vault-item-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+    border-color: var(--primary-light);
+}
+
+.vault-media-box {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    background: #f8fafc;
+}
+
+.vault-media-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.5s ease;
+    filter: blur(0);
+}
+
+.placeholder-media {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--secondary-light);
+    color: var(--secondary-color);
+}
+
+.blur-safety-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(160deg, var(--primary-color), var(--accent-color));
+    backdrop-filter: blur(40px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: white;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+}
+
+.blur-safety-overlay svg {
+    opacity: 0.9;
+}
+
+.blur-safety-overlay span {
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 1;
+}
+
+.vault-item-container:hover .blur-safety-overlay {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.vault-item-meta {
+    padding: 16px 8px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vault-report-link {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--secondary-color);
+}
+
+.vault-date {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    font-weight: 500;
+}
+
+.vault-empty-state {
+    padding: 60px;
+    text-align: center;
+    background: #F8FAFC;
+    border-radius: 32px;
+    border: 2px dashed var(--divider-soft);
+}
+
+.vault-empty-icon {
+    margin-bottom: 20px;
+}
+
+.vault-empty-state p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.btn-text-link {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 0.95rem;
+}
+
+/* Witness Impact Scorecard - Gamified Hero Metrics */
+.impact-scorecard-flow {
+    display: flex;
+    gap: 24px;
+    margin: 32px 0 40px;
+    flex-wrap: wrap;
+}
+
+.impact-card {
+    flex: 1;
+    min-width: 240px;
+    background: white;
+    padding: 24px;
+    border-radius: 24px;
+    border: 1px solid var(--divider-soft);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+.impact-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.1);
+    border-color: var(--primary-light);
+}
+
+.impact-icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.impact-icon-box.interventions {
+    background: var(--secondary-light);
+    color: var(--secondary-color);
+}
+
+.impact-icon-box.exits {
+    background: var(--accent-light);
+    color: var(--accent-color);
+}
+
+.impact-icon-box.trust {
+    background: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.impact-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.impact-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.impact-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin: 4px 0 0;
 }
