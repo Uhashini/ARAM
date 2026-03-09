@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Shield, Lock, LogIn, AlertTriangle, Eye, FileText, PhoneCall, BookOpen } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Shield, Lock, PhoneCall, Clock, ArrowRight, ExternalLink, MapPin, Eye, FileText, ChevronRight, Search, Trash2, Edit } from 'lucide-react';
+import { DataGrid } from '@mui/x-data-grid';
+import { Box, TextField, InputAdornment, Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from '@mui/material';
 import '../App.css';
+import './WitnessDashboard.css';
 import aramLogo from '../assets/aram-hero-logo.png';
 import Accordion from '../components/Accordion';
 
@@ -11,366 +13,477 @@ const WitnessDashboard = () => {
   const [reports, setReports] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [filterSeverity, setFilterSeverity] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState(null);
+
+  const fetchReports = async () => {
+    const userInfo = localStorage.getItem('userInfo');
+    if (userInfo) {
+      const parsedUser = JSON.parse(userInfo);
+      setUser(parsedUser);
+      setLoading(true);
+      try {
+        const response = await fetch('http://127.0.0.1:5001/api/witness/my-reports', {
+          headers: {
+            'Authorization': `Bearer ${parsedUser.token}`
+          }
+        });
+        const data = await response.json();
+        if (Array.isArray(data)) setReports(data);
+      } catch (err) {
+        console.error("Error fetching reports", err);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchReports = async () => {
-      const userInfo = localStorage.getItem('userInfo');
-      if (userInfo) {
-        const parsedUser = JSON.parse(userInfo);
-        setUser(parsedUser);
-        try {
-          const response = await fetch('http://127.0.0.1:5001/api/witness/my-reports', {
-            headers: {
-              'Authorization': `Bearer ${parsedUser.token}`
-            }
-          });
-          const data = await response.json();
-          if (Array.isArray(data)) setReports(data);
-        } catch (err) {
-          console.error("Error fetching reports", err);
-        }
-      }
-      setLoading(false);
-    };
     fetchReports();
   }, []);
 
-  // Handle hash navigation for smooth scrolling
-  useEffect(() => {
-    if (window.location.hash) {
-      const id = window.location.hash.substring(1);
-      setTimeout(() => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const handleDeleteClick = (report) => {
+    setReportToDelete(report);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!reportToDelete) return;
+
+    try {
+      const userInfo = localStorage.getItem('userInfo');
+      const { token } = JSON.parse(userInfo);
+
+      const response = await fetch(`http://127.0.0.1:5001/api/witness/report/${reportToDelete._id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      }, 100);
+      });
+
+      if (response.ok) {
+        setReports(reports.filter(r => r._id !== reportToDelete._id));
+        setDeleteDialogOpen(false);
+        setReportToDelete(null);
+      } else {
+        alert('Failed to delete report');
+      }
+    } catch (err) {
+      console.error("Error deleting report", err);
+      alert('Error connecting to server');
     }
-  }, []);
+  };
 
-  // Filter reports based on search and filters
+  const handleQuickExit = () => {
+    window.location.replace("https://www.google.com/search?q=weather+today");
+  };
+
   const filteredReports = reports.filter(report => {
-    const matchesSearch = searchTerm === '' ||
-      report.incidentDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (report.location && report.location.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    const matchesSeverity = filterSeverity === 'all' || report.severityLevel.toString() === filterSeverity;
-
-    return matchesSearch && matchesSeverity;
+    const matchesSeverity = filterSeverity === 'all' || (report.riskAssessment?.riskScore === filterSeverity);
+    const matchesSearch = !searchQuery ||
+      report.reportId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      report._id?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSeverity && matchesSearch;
   });
 
+  const columns = [
+    { field: 'reportId', headerName: 'Report ID', width: 150, renderCell: (params) => params.value || 'PENDING' },
+    {
+      field: 'createdAt',
+      headerName: 'Date',
+      width: 150,
+      valueGetter: (params, row) => new Date(row.createdAt).toLocaleDateString()
+    },
+    { field: 'location', headerName: 'Location', width: 250, renderCell: (params) => params.value || 'Reported Location' },
+    {
+      field: 'severity',
+      headerName: 'Severity',
+      width: 150,
+      renderCell: (params) => {
+        const score = params.row.riskAssessment?.riskScore;
+        let className = "status-badge info";
+        if (score === 'EMERGENCY') className = "status-badge warning";
+        else if (params.row.reportId) className = "status-badge success";
+
+        return <span className={className}>{score || 'SUBMITTED'}</span>;
+      }
+    },
+    {
+      field: 'actions',
+      headerName: 'Actions',
+      width: 200,
+      sortable: false,
+      renderCell: (params) => (
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => navigate(`/witness/report/${params.row._id}`)}
+            startIcon={<Eye size={14} />}
+            sx={{ textTransform: 'none', borderRadius: '8px' }}
+          >
+            View
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            color="primary"
+            onClick={() => navigate(`/witness/report/edit/${params.row._id}`)}
+            startIcon={<Edit size={14} />}
+            sx={{ textTransform: 'none', borderRadius: '8px' }}
+          >
+            Edit
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            color="error"
+            onClick={() => handleDeleteClick(params.row)}
+            startIcon={<Trash2 size={14} />}
+            sx={{ textTransform: 'none', borderRadius: '8px' }}
+          >
+            Delete
+          </Button>
+        </Box>
+      )
+    }
+  ];
+
   return (
-    <div className="app-container">
-      {/* Navigation */}
-      <nav className="navbar">
-        <div className="container nav-content">
-          <div className="logo">
+    <div className="witness-dashboard-redesign">
+      {/* Sticky Top Navigation */}
+      <nav className="navbar-fluid">
+        <div className="nav-inner-fluid">
+          <div className="nav-left-zone">
             <Link to="/">
-              <img src={aramLogo} alt="ARAM Logo" style={{ height: '40px' }} />
+              <img src={aramLogo} alt="ARAM" style={{ height: '32px' }} />
             </Link>
+            <div className="breadcrumb-fluid">
+              <Link to="/">Home</Link>
+              <ChevronRight size={14} />
+              <span>Witness Dashboard</span>
+            </div>
           </div>
-          <div className="nav-links">
-            <Link to="/" className="nav-link">Home</Link>
-            <a href="#safe-intervention-tools" className="nav-link" onClick={(e) => {
-              e.preventDefault();
-              document.getElementById('safe-intervention-tools')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }}>Resources</a>
+          <div className="nav-right-zone">
+            <div className="secure-indicator">
+              <Lock size={12} /> Secure Portal
+            </div>
+            {user ? (
+              <span className="user-welcome-fluid">Welcome, {user.name.split(' ')[0]}</span>
+            ) : (
+              <Link to="/login" className="btn-login-fluid" style={{ color: 'var(--primary-color)', fontWeight: '700', textDecoration: 'none' }}>Login</Link>
+            )}
+            <button
+              className="quick-exit-trigger"
+              onClick={handleQuickExit}
+              style={{
+                marginLeft: '15px',
+                padding: '6px 12px',
+                backgroundColor: 'var(--accent-color)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '0.8rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Shield size={14} /> Quick Exit
+            </button>
           </div>
         </div>
       </nav>
 
-      <div className="container" style={{ padding: '3rem 1.5rem', minHeight: 'calc(100vh - 80px)' }}>
-
-        <header style={{ marginBottom: '3rem', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem', color: 'var(--text-main)' }}>Witness Dashboard</h1>
-          <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', maxWidth: '700px', margin: '0 auto' }}>
-            Your role as a witness is crucial. You can report incidents {user ? 'securely' : 'anonymously'} or access tools to intervene safely.
-          </p>
-        </header>
-
-        <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '3rem' }}>
-
-          {/* LEFT COLUMN: Actions */}
-          <div className="actions-column">
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Shield size={24} color="var(--primary-color)" /> Action Center
-            </h2>
-
-            <div className="action-cards-stack" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              {/* Report Option */}
-              <motion.div
-                className="feature-card"
-                whileHover={{ y: -5 }}
-                style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '1.5rem', textAlign: 'left' }}
-              >
-                <div style={{ background: 'rgba(37, 99, 235, 0.1)', padding: '1rem', borderRadius: '50%', flexShrink: 0 }}>
-                  <FileText size={32} color="var(--primary-color)" />
-                </div>
-                <div>
-                  <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Report Incident</h3>
-                  <p style={{ fontSize: '0.95rem', marginBottom: '1rem' }}>Submit details {user ? 'linked to your profile' : 'without revealing your identity'}.</p>
-                  <button
-                    className="btn-primary"
-                    onClick={() => navigate('/report-incident')}
-                  >
-                    Start Report
-                  </button>
-                </div>
-              </motion.div>
-
-              {/* Login/History Option */}
-              {user ? (
-                <motion.div
-                  className="feature-card"
-                  whileHover={{ y: -5 }}
-                  style={{ padding: '2rem', borderTop: '4px solid var(--accent-color)' }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                    <Eye size={24} color="var(--accent-color)" />
-                    <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Your Report History</h3>
-                  </div>
-
-                  {/* Search and Filter Controls */}
-                  <div style={{ marginBottom: '1rem' }}>
-                    <input
-                      type="text"
-                      placeholder="Search reports by description or location..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '0.75rem',
-                        borderRadius: '0.5rem',
-                        border: '1px solid #e2e8f0',
-                        fontSize: '0.9rem',
-                        marginBottom: '0.75rem'
-                      }}
-                    />
-
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-
-                      <select
-                        value={filterSeverity}
-                        onChange={(e) => setFilterSeverity(e.target.value)}
-                        style={{
-                          padding: '0.5rem 0.75rem',
-                          borderRadius: '0.375rem',
-                          border: '1px solid #e2e8f0',
-                          fontSize: '0.85rem',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        <option value="all">All Severity</option>
-                        <option value="1">Level 1 (Verbal)</option>
-                        <option value="2">Level 2</option>
-                        <option value="3">Level 3</option>
-                        <option value="4">Level 4</option>
-                        <option value="5">Level 5 (Severe)</option>
-                      </select>
-
-                      {(searchTerm || filterSeverity !== 'all') && (
-                        <button
-                          onClick={() => {
-                            setSearchTerm('');
-                            setFilterSeverity('all');
-                          }}
-                          style={{
-                            padding: '0.5rem 0.75rem',
-                            borderRadius: '0.375rem',
-                            border: '1px solid #e2e8f0',
-                            background: '#fee2e2',
-                            color: '#dc2626',
-                            fontSize: '0.85rem',
-                            cursor: 'pointer',
-                            fontWeight: '500'
-                          }}
-                        >
-                          Clear Filters
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {loading ? (
-                    <p>Loading reports...</p>
-                  ) : filteredReports.length > 0 ? (
-                    <div style={{ maxHeight: '400px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                      {filteredReports.map((report) => (
-                        <div key={report._id} style={{ padding: '1rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                            <div style={{ flex: 1 }}>
-                              <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-                                <span style={{ color: '#94a3b8' }}>{new Date(report.createdAt).toLocaleDateString()}</span>
-                              </div>
-                              <p style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {report.incidentDescription}
-                              </p>
-                              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                                <button
-                                  onClick={() => navigate(`/witness/report/${report._id}`)}
-                                  style={{
-                                    padding: '0.4rem 0.8rem',
-                                    fontSize: '0.8rem',
-                                    background: 'var(--primary-color)',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '0.375rem',
-                                    cursor: 'pointer',
-                                    fontWeight: '500'
-                                  }}
-                                >
-                                  View
-                                </button>
-                                <button
-                                  onClick={() => navigate(`/witness/report/${report._id}/edit`)}
-                                  style={{
-                                    padding: '0.4rem 0.8rem',
-                                    fontSize: '0.8rem',
-                                    background: '#8b5cf6',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '0.375rem',
-                                    cursor: 'pointer',
-                                    fontWeight: '500'
-                                  }}
-                                >
-                                  Edit
-                                </button>
-                                <button
-                                  onClick={async () => {
-                                    if (window.confirm('Are you sure you want to delete this report?')) {
-                                      try {
-                                        const userInfo = localStorage.getItem('userInfo');
-                                        const parsedUser = JSON.parse(userInfo);
-                                        const response = await fetch(`http://127.0.0.1:5001/api/witness/report/${report._id}`, {
-                                          method: 'DELETE',
-                                          headers: {
-                                            'Authorization': `Bearer ${parsedUser.token}`
-                                          }
-                                        });
-                                        if (response.ok) {
-                                          alert('Report deleted successfully');
-                                          setReports(reports.filter(r => r._id !== report._id));
-                                        } else {
-                                          alert('Failed to delete report');
-                                        }
-                                      } catch (err) {
-                                        console.error('Delete error:', err);
-                                        alert('Failed to delete report');
-                                      }
-                                    }
-                                  }}
-                                  style={{
-                                    padding: '0.4rem 0.8rem',
-                                    fontSize: '0.8rem',
-                                    background: '#dc2626',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '0.375rem',
-                                    cursor: 'pointer',
-                                    fontWeight: '500'
-                                  }}
-                                >
-                                  Delete
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : searchTerm || filterSeverity !== 'all' ? (
-                    <p style={{ color: '#666', fontSize: '0.9rem', fontStyle: 'italic', textAlign: 'center', padding: '2rem' }}>
-                      No reports match your search criteria. Try adjusting your filters.
-                    </p>
-                  ) : (
-                    <p style={{ color: '#666', fontSize: '0.9rem', fontStyle: 'italic' }}>No reports submitted yet.</p>
-                  )}
-                </motion.div>
-              ) : (
-                <motion.div
-                  className="feature-card"
-                  whileHover={{ y: -5 }}
-                  style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '1.5rem', textAlign: 'left' }}
-                >
-                  <div style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '1rem', borderRadius: '50%', flexShrink: 0 }}>
-                    <LogIn size={32} color="var(--accent-color)" />
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>View Previous Reports</h3>
-                    <p style={{ fontSize: '0.95rem', marginBottom: '1rem' }}>Login to track status and history.</p>
-                    <button
-                      className="btn-outline"
-                      onClick={() => navigate('/login')}
-                    >
-                      Login / Sign Up
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Local Resources Card */}
-              <div style={{ background: '#fff', padding: '2rem', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
-                <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--danger)' }}>
-                  <PhoneCall size={20} /> Emergency Support
-                </h3>
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                  <li style={{ marginBottom: '1rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '0.5rem' }}>
-                    <strong>National Commission for Women</strong><br />
-                    <a href="tel:181" style={{ color: 'var(--primary-color)', fontWeight: 'bold' }}>Call 181</a> (24/7 Helpline)
-                  </li>
-                  <li>
-                    <strong>Police Control Room</strong><br />
-                    <a href="tel:100" style={{ color: 'var(--text-main)', fontWeight: 'bold' }}>Call 100</a>
-                  </li>
-                </ul>
+      <div className="fluid-layout-container">
+        {/* Main Flow (Left/Center) */}
+        <div className="main-content-flow">
+          {/* Hero Command Center */}
+          <header className="hero-command-fluid">
+            <h1>ARAM <span className="highlight">Witness</span> Command Center</h1>
+            <p>
+              Your action is a catalyst for change. Report safely, intervene directly,
+              or delegate to authorities. We provide the tools to ensure your safety and theirs.
+            </p>
+            <div className="hero-cta-area">
+              <button className="btn-primary-fluid" onClick={() => navigate('/report-incident')}>
+                Start Official Report
+              </button>
+              <div className="reassurance-note">
+                <Shield size={18} />
+                <span>Secure & 100% anonymous reporting</span>
               </div>
             </div>
-          </div>
+          </header>
 
-          {/* RIGHT COLUMN: Education / Tools */}
-          <div className="education-column" id="safe-intervention-tools">
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <BookOpen size={24} color="var(--secondary-color)" /> Safe Intervention Tools
-            </h2>
+          {/* Quick Trigger Strip */}
+          <section className="trigger-strip-fluid">
+            <div className="trigger-info">
+              <h3>Spotted an incident?</h3>
+              <p>Every report triggers immediate intervention resources and guidance.</p>
+            </div>
+            <button className="btn-trigger-fluid" onClick={() => navigate('/report-incident')}>
+              Report Now <ChevronRight size={18} />
+            </button>
+          </section>
 
-            <div className="accordions-wrapper">
-              <Accordion title="Recognize Signs of Abuse" icon={Eye} defaultOpen={true}>
-                <p style={{ marginBottom: '1rem' }}>Look for these subtle indicators in your friends or neighbors:</p>
-                <ul style={{ paddingLeft: '1.2rem', margin: 0 }}>
-                  <li><strong>Physical:</strong> Unexplained bruises, wearing concealing clothing.</li>
-                  <li><strong>Behavioral:</strong> Withdrawing from circle, rigid schedule.</li>
-                  <li><strong>Financial:</strong> No access to money, partner controls spending.</li>
-                </ul>
-              </Accordion>
+          {/* 3 D's of Intervention */}
+          <section className="ddd-section-fluid">
+            <h3>The 3 D's of Intervention</h3>
+            <div className="ddd-flow-fluid">
+              <div className="ddd-node distract">
+                <span className="node-num">01</span>
+                <h5>Distract</h5>
+                <p>Interrupt the situation indirectly to de-escalate without confrontation.</p>
+              </div>
+              <div className="ddd-node delegate">
+                <span className="node-num">02</span>
+                <h5>Delegate</h5>
+                <p>Find someone else with authority or more experience to help intervene.</p>
+              </div>
+              <div className="ddd-node direct">
+                <span className="node-num">03</span>
+                <h5>Direct</h5>
+                <p>Address the situation specifically if it is safe to do so for everyone.</p>
+              </div>
+            </div>
+          </section>
 
-              <Accordion title="Bystander Steps: The 3 D's" icon={AlertTriangle}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div style={{ padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem' }}>
-                    <strong>1. Distract:</strong> Spill a drink or ask for directions.
-                  </div>
-                  <div style={{ padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem' }}>
-                    <strong>2. Delegate:</strong> Ask others to help or alert security.
-                  </div>
-                  <div style={{ padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem' }}>
-                    <strong>3. Direct:</strong> Ask "Are you okay?" if safe.
+          {/* Intervention Toolkit */}
+          <section className="toolkit-section-fluid" id="toolkit">
+            <div className="toolkit-header-flow">
+              <div className="toolkit-intro">
+                <h3>Intervention Toolkit</h3>
+                <p>
+                  Knowledge is your most powerful tool. Equip yourself with the specific
+                  indicators of abuse and the exact protocols needed to intervene without
+                  compromising your own or the survivor's safety.
+                </p>
+              </div>
+              <div className="toolkit-accordion-list">
+                <Accordion title="Signs of Abuse" icon={Eye} variant="clean" iconColor="var(--accent-color)">
+                  <ul className="toolkit-list-fluid">
+                    <li>Physical markers (unexplained bruises or clothing choices)</li>
+                    <li>Behavioral shifts (extreme anxiety, withdrawal)</li>
+                    <li>Controlling behavior from a partner</li>
+                  </ul>
+                </Accordion>
+                <Accordion title="Safety Protocols" icon={Lock} variant="clean" iconColor="var(--primary-color)">
+                  <ul className="toolkit-list-fluid">
+                    <li>Use incognito mode for browsing safety tools</li>
+                    <li>Digital footprint management and quick-exit strategies</li>
+                    <li>Safe ways to document evidence</li>
+                  </ul>
+                </Accordion>
+              </div>
+            </div>
+            <div className="toolkit-footer-flow">
+              <Link to="/understand-abuse/what-is-ipv" className="link-standard-fluid">
+                Explore the Full Educational Guide <ChevronRight size={18} />
+              </Link>
+            </div>
+          </section>
+
+          {/* Activity History */}
+          <section className="history-section-fluid">
+            <div className="section-divider-top" />
+            <div className="history-portal-header">
+              <Shield size={32} color="var(--primary-color)" />
+              <h3>Activity History</h3>
+            </div>
+
+            {user ? (
+              <div className="history-list-fluid">
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Track your reports and access detailed FIR summaries securely.</p>
+
+                <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+                  <TextField
+                    placeholder="Search by Report ID..."
+                    variant="outlined"
+                    size="small"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    sx={{
+                      flexGrow: 1,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        backgroundColor: 'white',
+                      }
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search size={18} color="var(--text-tertiary)" />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <select
+                    className="severity-filter-select"
+                    value={filterSeverity}
+                    onChange={(e) => setFilterSeverity(e.target.value)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '12px',
+                      border: '1px solid #E2E8F0',
+                      backgroundColor: 'white',
+                      color: 'var(--text-secondary)',
+                      fontSize: '0.9rem',
+                      fontWeight: '500'
+                    }}
+                  >
+                    <option value="all">All Severities</option>
+                    <option value="EMERGENCY">Emergency</option>
+                    <option value="HIGH">High</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="LOW">Low</option>
+                  </select>
+                </Box>
+
+                <div className="trust-indicator-row">
+                  <div className="trust-item"><Lock size={14} /> Encrypted</div>
+                  <div className="trust-item"><Shield size={14} /> Anonymous Access</div>
+                  <div className="trust-item"><FileText size={14} /> FIR Summaries</div>
+                </div>
+
+                <Box sx={{ height: 500, width: '100%', mt: 2, backgroundColor: 'white', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--divider-soft)' }}>
+                  <DataGrid
+                    rows={filteredReports}
+                    columns={columns}
+                    getRowId={(row) => row._id}
+                    pageSizeOptions={[5, 10, 20]}
+                    initialState={{
+                      pagination: { paginationModel: { pageSize: 10 } },
+                    }}
+                    loading={loading}
+                    disableRowSelectionOnClick
+                    sx={{
+                      border: 'none',
+                      '& .MuiDataGrid-columnHeaders': {
+                        backgroundColor: '#F8FAFC',
+                        color: 'var(--text-secondary)',
+                        fontWeight: '700',
+                      },
+                      '& .MuiDataGrid-cell': {
+                        borderBottom: '1px solid #F1F5F9',
+                      },
+                      '& .MuiDataGrid-footerContainer': {
+                        borderTop: '1px solid #F1F5F9',
+                      }
+                    }}
+                  />
+                </Box>
+
+                <Dialog
+                  open={deleteDialogOpen}
+                  onClose={() => setDeleteDialogOpen(false)}
+                  PaperProps={{
+                    style: { borderRadius: '16px', padding: '8px' }
+                  }}
+                >
+                  <DialogTitle sx={{ fontWeight: 700 }}>Confirm Deletion</DialogTitle>
+                  <DialogContent>
+                    <Typography variant="body1">
+                      Are you sure you want to delete report <strong>#{reportToDelete?.reportId || 'PENDING'}</strong>? This action cannot be undone.
+                    </Typography>
+                  </DialogContent>
+                  <DialogActions sx={{ p: 2, gap: 1 }}>
+                    <Button
+                      onClick={() => setDeleteDialogOpen(false)}
+                      variant="outlined"
+                      sx={{ borderRadius: '12px', textTransform: 'none', px: 3 }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={confirmDelete}
+                      variant="contained"
+                      color="error"
+                      sx={{ borderRadius: '12px', textTransform: 'none', px: 3, boxShadow: 'none' }}
+                    >
+                      OK, Delete
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+              </div>
+            ) : (
+              <div className="history-auth-upsell">
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '1.15rem' }}>
+                  Your personal dashboard for tracking reports and legal documentation.
+                </p>
+                <div className="trust-indicator-row">
+                  <div className="trust-item"><Lock size={14} /> Encrypted</div>
+                  <div className="trust-item"><Shield size={14} /> Anonymous Access</div>
+                  <div className="trust-item"><FileText size={14} /> FIR Summaries</div>
+                </div>
+                <div className="upsell-context">
+                  <div className="upsell-copy">
+                    <p>
+                      Login to access your private secure vault, track active investigations,
+                      and download official FIR summaries.
+                    </p>
                   </div>
                 </div>
-              </Accordion>
+                <button className="btn-secondary-fluid" onClick={() => navigate('/login')}>
+                  Login to Secure Vault <ArrowRight size={20} />
+                </button>
+              </div>
+            )}
+          </section>
+        </div>
 
-              <Accordion title="Safety Planning for Witnesses" icon={Lock}>
-                <p>Your safety matters. Do not intervene physically if weapons are involved.</p>
-                <ul style={{ paddingLeft: '1.2rem', marginTop: '0.5rem' }}>
-                  <li>Keep emergency numbers handy.</li>
-                  <li>Maintain a safe distance.</li>
-                  <li>Trust your instincts—call 100/181 if it feels dangerous.</li>
-                </ul>
-              </Accordion>
+        {/* Desktop Emergency Panel */}
+        <aside className="emergency-panel-desktop">
+          <h4>Emergency Assistance</h4>
+          <a href="tel:181" className="emergency-item-fluid">
+            <div className="emergency-icon-box">
+              <PhoneCall size={20} />
             </div>
-          </div>
+            <div className="emergency-content-box">
+              <h5>NCW Helpline</h5>
+              <span>Dial 181</span>
+            </div>
+          </a>
+          <a href="tel:100" className="emergency-item-fluid">
+            <div className="emergency-icon-box">
+              <Shield size={20} />
+            </div>
+            <div className="emergency-content-box">
+              <h5>Police</h5>
+              <span>Dial 100</span>
+            </div>
+          </a>
+        </aside>
+      </div>
 
+      {/* Mobile Sticky Bottom Sheet */}
+      <div className="mobile-emergency-sheet">
+        <div className="sheet-handle" />
+        <div style={{ display: 'flex', gap: '16px' }}>
+          <a href="tel:181" className="emergency-item-fluid" style={{ flex: 1, marginBottom: 0 }}>
+            <div className="emergency-icon-box">
+              <PhoneCall size={18} />
+            </div>
+            <div className="emergency-content-box">
+              <h5>NCW</h5>
+              <span>181</span>
+            </div>
+          </a>
+          <a href="tel:100" className="emergency-item-fluid" style={{ flex: 1, marginBottom: 0 }}>
+            <div className="emergency-icon-box">
+              <Shield size={18} />
+            </div>
+            <div className="emergency-content-box">
+              <h5>Police</h5>
+              <span>100</span>
+            </div>
+          </a>
         </div>
       </div>
     </div>

@@ -37,23 +37,6 @@ const Navigation = () => {
     setActiveDropdown(null);
   }, [location]);
 
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        setIsOpen(false);
-        setActiveDropdown(null);
-      }
-      // Quick Exit shortcut
-      if (e.ctrlKey && e.key === 'e') {
-        e.preventDefault();
-        handleQuickExit();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('userInfo');
@@ -62,7 +45,7 @@ const Navigation = () => {
   };
 
   const handleQuickExit = () => {
-    window.location.replace("https://www.google.com/search?q=weather");
+    window.location.replace("https://www.google.com/search?q=weather+today");
   };
 
   const getDashboardLink = () => {

@@ -32,7 +32,7 @@ main {
 
 /* Navbar */
 .navbar {
-  background: var(--white);
+  background: var(--surface-color);
   box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
@@ -290,7 +290,7 @@ main {
 }
 
 .role-card {
-  background: #ffffff;
+  background: var(--surface-color);
   padding: 2rem;
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
@@ -299,7 +299,7 @@ main {
   display: flex;
   flex-direction: column;
   height: 100%;
-  border-radius: 0.7rem; /* or var(--radius-xl) if defined */
+  border-radius: var(--radius-lg);
 }
 
 .role-card:hover {
@@ -342,7 +342,7 @@ main {
 }
 
 .role-witness .role-btn {
-  background-color: rgba(37, 99, 235, 0.1);
+  background-color: var(--primary-light);
   color: var(--primary-color);
 }
 
@@ -356,7 +356,7 @@ main {
 }
 
 .role-victim .role-btn {
-  background-color: rgba(139, 92, 246, 0.1);
+  background-color: var(--accent-light);
   color: var(--accent-color);
 }
 
@@ -370,7 +370,7 @@ main {
 }
 
 .role-hospital .role-btn {
-  background-color: rgba(16, 185, 129, 0.1);
+  background-color: var(--success-bg);
   color: var(--success);
 }
 
@@ -384,7 +384,7 @@ main {
 }
 
 .role-admin .role-btn {
-  background-color: rgba(75, 85, 99, 0.1);
+  background-color: var(--border-light);
   color: var(--text-secondary);
 }
 
@@ -398,8 +398,13 @@ main {
 
 /* Understand Abuse (Info Section) */
 .info-section {
-  padding: 15rem 0 15rem 0;
+  padding: 10rem 0 10rem 0;
   background-color: var(--white);
+}
+
+.info-section .section-title {
+  font-size: 3rem;
+  margin-bottom: 4rem;
 }
 
 .info-grid {
@@ -409,21 +414,24 @@ main {
 }
 
 .info-card {
-  padding: 2rem;
+  padding: 2.5rem;
   background: white;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   border: 1px solid rgba(0, 0, 0, 0.03);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
 }
 
 .info-card h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
   color: var(--text-main);
 }
 
 .info-card p {
-  margin-bottom: 1.5rem;
-  font-size: 0.95rem;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
 }
 
 .text-link {
@@ -443,11 +451,37 @@ main {
   background-color: var(--background-color);
 }
 
+.recognize-section .section-title {
+  font-size: 3rem;
+  margin-bottom: 2rem;
+}
+
 .section-subtitle {
   text-align: center;
-  max-width: 600px;
-  margin: -2rem auto 3rem;
-  font-size: 1.1rem;
+  max-width: 800px;
+  margin: 0 auto 4rem;
+  font-size: 1.3rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.subtitle-emphasis {
+  font-weight: 700;
+  color: var(--text-main);
+  font-style: normal;
+  margin-right: 0.5rem;
+}
+
+.subtitle-highlight {
+  color: var(--primary-color);
+  font-weight: 600;
+  font-style: normal;
+  background: linear-gradient(120deg, var(--primary-light) 0%, var(--primary-light) 100%);
+  background-repeat: no-repeat;
+  background-size: 100% 0.4em;
+  background-position: 0 90%;
 }
 
 .duel-grid {
@@ -477,7 +511,7 @@ main {
 /* Seeking Support */
 .support-section {
   padding: 10rem 0 10rem 0;
-  background-color: #d3d6e4f6;
+  background-color: var(--primary-light);
 }
 
 .info-gridSupport {

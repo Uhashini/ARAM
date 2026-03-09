@@ -1,16 +1,126 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const WitnessReport = require('../models/WitnessReport');
 const { authenticate, optionalAuth } = require('../middleware/auth');
+const { findNearestPoliceStation } = require('../utils/policeStationMapper');
+const { calculateRiskScore, determineDestinations } = require('../services/routingService');
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadDir = 'uploads/evidence';
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'evidence-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'video/mp4', 'video/quicktime', 'application/pdf'];
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Invalid file type. Only images, videos, and PDFs are allowed.'), false);
+    }
+};
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    fileFilter: fileFilter
+});
+
+// Helper to suggest legal sections (India)
+const suggestLegalSections = (abuseTypes = []) => {
+    const mapping = {
+        'physical': ['IPC 323 (Voluntary causing hurt)', 'IPC 325 (Grievous hurt)'],
+        'sexual': ['IPC 354 (Assault or criminal force to woman with intent to outrage her modesty)'],
+        'emotional': ['Domestic Violence Act 2005 (Section 3)'],
+        'verbal': ['IPC 504 (Intentional insult with intent to provoke breach of the peace)'],
+        'dowry-related': ['IPC 498A (Husband or relative of husband of a woman subjecting her to cruelty)', 'Dowry Prohibition Act'],
+        'financial': ['Domestic Violence Act 2005']
+    };
+
+    let suggestions = new Set();
+    abuseTypes.forEach(type => {
+        if (mapping[type]) mapping[type].forEach(s => suggestions.add(s));
+    });
+
+    return Array.from(suggestions);
+};
 
 // @route   POST api/witness/report
-// @desc    Submit a witness report (anonymous or authenticated)
+// @desc    Submit an enhanced witness report (structured like FIR)
 // @access  Public (Optional Auth)
-router.post('/report', optionalAuth, async (req, res) => {
+router.post('/report', optionalAuth, upload.array('evidence', 10), async (req, res) => {
     try {
-        const reportData = { ...req.body };
+        // Parse the reportData from FormData
+        const reportData = req.body.reportData ? JSON.parse(req.body.reportData) : req.body;
 
-        // Link to user if authenticated
+        // Process uploaded evidence files
+        if (req.files && req.files.length > 0) {
+            reportData.evidence = req.files.map(file => ({
+                fileType: file.mimetype,
+                fileName: file.filename,
+                filePath: file.path,
+                fileSize: file.size,
+                uploadedAt: new Date()
+            }));
+        }
+
+        // 1. Calculate Risk Score
+        if (!reportData.riskAssessment) reportData.riskAssessment = {};
+
+        // Adapt witness data to routing service expected format if needed
+        // The routing service expects 'riskAssessment.indicators' but witness report has flat structure
+        // We can map it temporarily for calculation
+        const routingInput = {
+            ...reportData,
+            riskAssessment: {
+                indicators: {
+                    threatToKill: false, // Witness might not know
+                    weaponUse: reportData.accused?.hasWeapon === 'yes',
+                    suicideThreats: reportData.riskAssessment.hasSuicideThreats
+                }
+            },
+            perpetrator: reportData.accused,
+            medical: reportData.medical
+        };
+
+        reportData.riskAssessment.riskScore = calculateRiskScore(routingInput);
+
+        // 1.b Determine Destinations (Routing)
+        const destinations = determineDestinations(routingInput, reportData.riskAssessment.riskScore);
+        reportData.routing = {
+            destinations: destinations,
+            priorityLevel: (reportData.riskAssessment.riskScore === 'EXTREME' || reportData.riskAssessment.riskScore === 'HIGH') ? 'P1' : 'P2'
+        };
+
+        // 2. Suggest Legal Sections
+        reportData.suggestedLegalSections = suggestLegalSections(reportData.abuseType);
+
+        // 3. Find and assign nearest police station
+        if (reportData.locationCoordinates && reportData.locationCoordinates.coordinates) {
+            const [longitude, latitude] = reportData.locationCoordinates.coordinates;
+            try {
+                const policeStation = await findNearestPoliceStation(latitude, longitude);
+                reportData.assignedPoliceStation = policeStation;
+                console.log(`Assigned police station: ${policeStation.name} (${policeStation.distance}km away)`);
+            } catch (error) {
+                console.error('Failed to find nearest police station:', error);
+                // Continue without police station assignment
+            }
+        }
+
+        // 4. Link to user if authenticated
         if (req.user) {
             reportData.user = req.user.userId;
         }
@@ -20,11 +130,16 @@ router.post('/report', optionalAuth, async (req, res) => {
 
         res.status(201).json({
             message: 'Report submitted successfully',
-            reportId: savedReport._id
+            reportId: savedReport.reportId,
+            riskScore: savedReport.riskAssessment.riskScore,
+            suggestedLaws: savedReport.suggestedLegalSections,
+            evidenceCount: savedReport.evidence?.length || 0,
+            assignedPoliceStation: savedReport.assignedPoliceStation,
+            routing: savedReport.routing
         });
     } catch (err) {
         console.error('Error submitting witness report:', err);
-        res.status(500).json({ message: 'Server error while submitting report' });
+        res.status(500).json({ message: 'Server error while submitting report', error: err.message });
     }
 });
 
@@ -86,7 +201,8 @@ router.put('/report/:id', authenticate, async (req, res) => {
         // Update fields
         const allowedUpdates = [
             'incidentDescription', 'location', 'dateTime', 'witnessRelationship',
-            'severityLevel', 'immediateRisk', 'actionsTaken', 'optionalContact', 'provideContact'
+            'severityLevel', 'immediateRisk', 'actionsTaken', 'optionalContact', 'provideContact',
+            'locationCoordinates'
         ];
 
         allowedUpdates.forEach(field => {
