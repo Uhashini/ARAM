@@ -5,7 +5,7 @@ const reportSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    default: function() {
+    default: function () {
       return 'RPT-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
     }
   },
@@ -366,35 +366,35 @@ reportSchema.index({ 'scheduledGeneration.nextGenerationDate': 1 });
 reportSchema.index({ isActive: 1 });
 
 // Method to mark report as completed
-reportSchema.methods.markCompleted = function(filePath, fileSize) {
+reportSchema.methods.markCompleted = function (filePath, fileSize) {
   this.status = 'completed';
   this.filePath = filePath;
   this.fileSize = fileSize;
-  
+
   // Add audit trail entry
   this.compliance.auditTrail.push({
     action: 'generated',
     userId: this.generatedBy,
     timestamp: new Date()
   });
-  
+
   return this.save();
 };
 
 // Method to mark report as failed
-reportSchema.methods.markFailed = function(error) {
+reportSchema.methods.markFailed = function (error) {
   this.status = 'failed';
   this.error = {
     message: error.message,
     stack: error.stack,
     timestamp: new Date()
   };
-  
+
   return this.save();
 };
 
 // Method to add audit trail entry
-reportSchema.methods.addAuditEntry = function(action, userId, ipAddress, userAgent) {
+reportSchema.methods.addAuditEntry = function (action, userId, ipAddress, userAgent) {
   this.compliance.auditTrail.push({
     action: action,
     userId: userId,
@@ -402,42 +402,42 @@ reportSchema.methods.addAuditEntry = function(action, userId, ipAddress, userAge
     ipAddress: ipAddress,
     userAgent: userAgent
   });
-  
+
   return this.save();
 };
 
 // Method to check access permissions
-reportSchema.methods.hasAccess = function(user) {
+reportSchema.methods.hasAccess = function (user) {
   // Public reports are accessible to all
   if (this.accessControl.isPublic) return true;
-  
+
   // Check if user is explicitly allowed
   if (this.accessControl.allowedUsers.includes(user._id)) return true;
-  
+
   // Check if user's role is allowed
   if (this.accessControl.allowedRoles.includes(user.role)) return true;
-  
+
   // Check if user's department is allowed
-  if (user.profile.department && 
-      this.accessControl.allowedDepartments.includes(user.profile.department)) {
+  if (user.profile.department &&
+    this.accessControl.allowedDepartments.includes(user.profile.department)) {
     return true;
   }
-  
+
   // Report generator always has access
   if (this.generatedBy.equals(user._id)) return true;
-  
+
   return false;
 };
 
 // Method to schedule next generation
-reportSchema.methods.scheduleNext = function() {
+reportSchema.methods.scheduleNext = function () {
   if (!this.scheduledGeneration.isScheduled || !this.scheduledGeneration.frequency) {
     return;
   }
-  
+
   const now = new Date();
   let nextDate = new Date(now);
-  
+
   switch (this.scheduledGeneration.frequency) {
     case 'daily':
       nextDate.setDate(nextDate.getDate() + 1);
@@ -455,23 +455,23 @@ reportSchema.methods.scheduleNext = function() {
       nextDate.setFullYear(nextDate.getFullYear() + 1);
       break;
   }
-  
+
   this.scheduledGeneration.nextGenerationDate = nextDate;
   this.scheduledGeneration.lastGenerationDate = now;
-  
+
   return this.save();
 };
 
 // Static method to find reports by type
-reportSchema.statics.findByType = function(reportType) {
-  return this.find({ 
+reportSchema.statics.findByType = function (reportType) {
+  return this.find({
     reportType: reportType,
-    isActive: true 
+    isActive: true
   }).sort({ createdAt: -1 });
 };
 
 // Static method to find scheduled reports due for generation
-reportSchema.statics.findDueForGeneration = function() {
+reportSchema.statics.findDueForGeneration = function () {
   return this.find({
     'scheduledGeneration.isScheduled': true,
     'scheduledGeneration.nextGenerationDate': { $lte: new Date() },
@@ -480,7 +480,7 @@ reportSchema.statics.findDueForGeneration = function() {
 };
 
 // Static method to find reports by user access
-reportSchema.statics.findAccessibleByUser = function(user) {
+reportSchema.statics.findAccessibleByUser = function (user) {
   return this.find({
     $or: [
       { 'accessControl.isPublic': true },
@@ -494,7 +494,7 @@ reportSchema.statics.findAccessibleByUser = function(user) {
 };
 
 // Static method to get report statistics
-reportSchema.statics.getReportStatistics = function() {
+reportSchema.statics.getReportStatistics = function () {
   return this.aggregate([
     { $match: { isActive: true } },
     {

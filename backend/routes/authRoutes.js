@@ -14,7 +14,7 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 // @access  Public
 router.post('/register', async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, organization } = req.body;
 
     try {
         if (!name || !email || !password) {
@@ -28,13 +28,14 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'User already exists' });
         }
 
+        // Build user data
+        const userData = { name, email, password, role: role || 'victim' };
+        if (role === 'healthcare' && organization) {
+            userData.organization = organization;
+        }
+
         // Create user
-        const user = await User.create({
-            name,
-            email,
-            password,
-            role: role || 'victim'
-        });
+        const user = await User.create(userData);
 
         if (user) {
             res.status(201).json({

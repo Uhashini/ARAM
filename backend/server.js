@@ -116,6 +116,7 @@ app.use('/api/witness', require('./routes/witnessRoutes'));
 app.use('/api/journal', require('./routes/journalRoutes'));
 app.use('/api/victim', require('./routes/victimRoutes'));
 app.use('/api/emergency', require('./routes/emergencyRoutes'));
+app.use('/api/healthcare', require('./routes/healthcareRoutes'));
 
 // Error handling
 app.use((err, req, res, next) => {

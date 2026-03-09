@@ -13,6 +13,9 @@ const Referral = require('./Referral');
 const Analytics = require('./Analytics');
 const Report = require('./Report');
 const Content = require('./Content');
+const CarePlan = require('./CarePlan');
+const FollowUpLog = require('./FollowUpLog');
+const GeneratedPatientReport = require('./GeneratedPatientReport');
 
 module.exports = {
   User,
@@ -26,5 +29,8 @@ module.exports = {
   Referral,
   Analytics,
   Report,
-  Content
+  Content,
+  CarePlan,
+  FollowUpLog,
+  GeneratedPatientReport
 };
