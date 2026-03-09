@@ -11,7 +11,7 @@ const Login = () => {
   const from = location.state?.from?.pathname || null;
   const message = location.state?.message || null;
 
-  const API_URL = 'http://127.0.0.1:5001'; // Change to your deployed URL when ready
+  const API_URL = 'http://localhost:5001'; // Standardized to localhost
   const [isLogin, setIsLogin] = useState(true); // Toggle between Login and Signup
   const [formData, setFormData] = useState({
     name: '',
@@ -53,7 +53,7 @@ const Login = () => {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        role: formData.role,
+        role: formData.role === 'healthcare' ? 'healthcare_worker' : formData.role,
         organization: formData.role === 'healthcare' ? formData.organization : undefined
       };
     }
@@ -78,7 +78,7 @@ const Login = () => {
         } else {
           // Default role-based redirection
           if (data.role === 'admin') navigate('/admin');
-          else if (data.role === 'healthcare') navigate('/healthcare');
+          else if (data.role === 'healthcare_worker') navigate('/healthcare');
           else if (data.role === 'witness') navigate('/witness');
           else navigate('/victim-dashboard');
         }
@@ -178,6 +178,7 @@ const Login = () => {
                       <option value="victim">Victim / Survivor</option>
                       <option value="witness">Witness / Community Member</option>
                       <option value="healthcare">Healthcare Professional</option>
+                      <option value="admin">Administrator (Governance)</option>
                     </select>
                   </div>
 

@@ -37,6 +37,11 @@ const witnessReportSchema = new mongoose.Schema({
     type: String, // Basic address
     required: false,
   },
+  region: {
+    country: { type: String, default: 'India' },
+    state: String,
+    district: String
+  },
   locationCoordinates: {
     type: { type: String, enum: ['Point'], default: 'Point' },
     coordinates: { type: [Number], default: [0, 0] }

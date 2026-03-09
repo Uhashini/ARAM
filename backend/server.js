@@ -97,6 +97,10 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Static files
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Request ID
 const { addRequestId } = require('./middleware/auth');
 app.use(addRequestId);
@@ -116,6 +120,8 @@ app.use('/api/witness', require('./routes/witnessRoutes'));
 app.use('/api/journal', require('./routes/journalRoutes'));
 app.use('/api/victim', require('./routes/victimRoutes'));
 app.use('/api/emergency', require('./routes/emergencyRoutes'));
+app.use('/api/admin', require('./routes/admin'));
+
 
 // Error handling
 app.use((err, req, res, next) => {
