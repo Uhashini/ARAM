@@ -53,7 +53,7 @@ const Navigation = () => {
     switch (user.role) {
       case 'victim': return "/victim-dashboard";
       case 'witness': return "/witness";
-      case 'healthcare': return "/healthcare";
+      case 'healthcare_worker': return "/healthcare";
       case 'admin': return "/admin";
       default: return "/";
     }

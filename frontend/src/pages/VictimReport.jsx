@@ -37,6 +37,7 @@ const VictimReport = () => {
     const [formData, setFormData] = useState({
         personalDetails: {
             name: '', age: '', gender: '', phone: '', email: '', address: '',
+            region: { country: 'India', state: '', district: '' },
             preferredLanguage: 'English',
             safeContact: { name: '', phone: '', relation: '', safeTimeToCall: '' },
             disabilityStatus: { hasDisability: false, details: '' }
@@ -220,6 +221,27 @@ const VictimReport = () => {
                             <div className="input-group-fluid">
                                 <label>Age</label>
                                 <input type="number" name="age" value={formData.personalDetails.age} onChange={(e) => handleInputChange(e, 'personalDetails')} />
+                            </div>
+                        </div>
+
+                        <div className="form-section-fluid">
+                            <label className="section-title">Location & Region</label>
+                            <div className="form-grid-2">
+                                <div className="input-group-fluid">
+                                    <label>State</label>
+                                    <select name="state" value={formData.personalDetails.region.state} onChange={(e) => handleInputChange(e, 'personalDetails', 'region')} style={{ width: '100%', padding: '0.9rem', borderRadius: '0.75rem', border: '1px solid #e5e7eb', background: 'white' }}>
+                                        <option value="">Select State</option>
+                                        <option value="Delhi">Delhi</option>
+                                        <option value="Maharashtra">Maharashtra</option>
+                                        <option value="Tamil Nadu">Tamil Nadu</option>
+                                        <option value="Karnataka">Karnataka</option>
+                                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                    </select>
+                                </div>
+                                <div className="input-group-fluid">
+                                    <label>District</label>
+                                    <input type="text" name="district" value={formData.personalDetails.region.district} onChange={(e) => handleInputChange(e, 'personalDetails', 'region')} placeholder="Your District" />
+                                </div>
                             </div>
                         </div>
 

@@ -13,6 +13,9 @@ import 'leaflet/dist/leaflet.css';
 import './WitnessReportDetail.css';
 import '../App.css';
 import aramLogo from '../assets/aram-hero-logo.png';
+import jsPDF from 'jspdf';
+import LogEntryForm from '../components/LogEntryForm';
+import AdvancedTimeline from '../components/AdvancedTimeline';
 
 // Fix Leaflet marker icon issue
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -65,6 +68,100 @@ const WitnessReportDetail = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleLogAdded = (newLog) => {
+        setReport(prev => ({
+            ...prev,
+            progressLogs: [newLog, ...(prev.progressLogs || [])]
+        }));
+    };
+
+    const generateFIRPDF = () => {
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth();
+
+        // Header
+        doc.setFillColor(31, 41, 55);
+        doc.rect(0, 0, pageWidth, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.text("ARAM - FIRST INFORMATION PACKET", pageWidth / 2, 25, { align: "center" });
+
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        let y = 50;
+
+        // Case Info
+        doc.setFont("helvetica", "bold");
+        doc.text(`REPORT ID: ${report.reportId || 'PENDING'}`, 20, y);
+        doc.text(`DATE: ${new Date(report.createdAt).toLocaleString()}`, pageWidth - 20, y, { align: "right" });
+        y += 10;
+
+        doc.setDrawColor(200, 200, 200);
+        doc.line(20, y, pageWidth - 20, y);
+        y += 10;
+
+        // Incident Details
+        doc.setFontSize(14);
+        doc.text("1. INCIDENT DESCRIPTION", 20, y);
+        y += 7;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        const splitDesc = doc.splitTextToSize(report.incidentDescription, pageWidth - 40);
+        doc.text(splitDesc, 20, y);
+        y += (splitDesc.length * 5) + 10;
+
+        // Classification
+        doc.setFont("helvetica", "bold");
+        doc.text("2. CLASSIFICATION & RISK", 20, y);
+        y += 7;
+        doc.setFont("helvetica", "normal");
+        doc.text(`Abuse Type: ${report.abuseType?.join(', ') || 'N/A'}`, 25, y);
+        y += 5;
+        doc.text(`Risk Level: ${report.riskAssessment?.riskScore || 'PENDING'}`, 25, y);
+        y += 5;
+        doc.text(`Location: ${report.location || 'N/A'}`, 25, y);
+        y += 15;
+
+        // Victim/Accused (Redacted if anonymous)
+        doc.setFont("helvetica", "bold");
+        doc.text("3. INVOLVED PARTIES", 20, y);
+        y += 7;
+        doc.setFont("helvetica", "normal");
+        doc.text(`Victim: ${report.victim?.name || 'NAME REDACTED (PRIVACY MODE)'}`, 25, y);
+        y += 5;
+        doc.text(`Accused: ${report.accused?.name || 'NAME REDACTED (PRIVACY MODE)'}`, 25, y);
+        y += 15;
+
+        // Timeline
+        doc.setFont("helvetica", "bold");
+        doc.text("4. INTERVENTION TIMELINE & LOGS", 20, y);
+        y += 7;
+        doc.setFontSize(9);
+        const logs = report.progressLogs || [];
+        if (logs.length === 0) {
+            doc.text("No progress logs recorded yet.", 25, y);
+            y += 10;
+        } else {
+            logs.forEach(log => {
+                if (y > 270) { doc.addPage(); y = 20; }
+                doc.setFont("helvetica", "bold");
+                doc.text(`[${new Date(log.timestamp).toLocaleDateString()}] ${log.category.toUpperCase()}`, 25, y);
+                y += 5;
+                doc.setFont("helvetica", "normal");
+                const logText = doc.splitTextToSize(log.content, pageWidth - 60);
+                doc.text(logText, 30, y);
+                y += (logText.length * 4) + 5;
+            });
+        }
+
+        // Footer
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text("This document is a system-generated summary for legal and intervention purposes.", pageWidth / 2, 285, { align: "center" });
+
+        doc.save(`ARAM_FIR_PACKET_${report.reportId || 'PENDING'}.pdf`);
     };
 
     const handleWithdraw = async () => {
@@ -357,6 +454,47 @@ const WitnessReportDetail = () => {
                         </div>
                     )}
 
+                    <div className="risk-scorecard-section">
+                        <div className="section-header">
+                            <ShieldAlert size={20} className="header-icon risk" />
+                            <h3>Risk & Safety Scorecard</h3>
+                        </div>
+                        <div className="risk-scorecard">
+                            <div className="risk-main-indicator" data-risk={report.riskAssessment?.riskScore}>
+                                <div className="risk-label">Priority Status</div>
+                                <div className="risk-value">{report.riskAssessment?.riskScore || 'LOW'}</div>
+                                <div className="risk-sub">Automated System Analysis</div>
+                            </div>
+
+                            <div className="risk-factors-grid">
+                                <div className={`risk-factor ${report.riskAssessment?.isVictimInImmediateDanger ? 'active' : ''}`}>
+                                    <AlertCircle size={16} />
+                                    <span>Immediate Danger</span>
+                                </div>
+                                <div className={`risk-factor ${report.riskAssessment?.isAccusedNearby ? 'active' : ''}`}>
+                                    <MapPin size={16} />
+                                    <span>Accused Proximity</span>
+                                </div>
+                                <div className={`risk-factor ${report.riskAssessment?.areChildrenAtRisk ? 'active' : ''}`}>
+                                    <User size={16} />
+                                    <span>Child Safety Concern</span>
+                                </div>
+                                <div className={`risk-factor ${report.riskAssessment?.hasSuicideThreats ? 'active' : ''}`}>
+                                    <Activity size={16} />
+                                    <span>Self-Harm Risk</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="safety-protocol-alert">
+                            <ShieldCheck size={18} />
+                            <p><strong>Safety Protocol:</strong> {
+                                report.riskAssessment?.riskScore === 'EMERGENCY' ? 'Immediate police intervention triggered. Stay in a public, well-lit area.' :
+                                    report.riskAssessment?.riskScore === 'HIGH' ? 'High alert. Authorities notified. Avoid direct confrontation.' :
+                                        'Report logged. Awaiting authority review. Maintain safety distance.'
+                            }</p>
+                        </div>
+                    </div>
+
                     <div className="case-actions-drawer">
                         <button
                             onClick={() => navigate(`/witness/report/${id}/edit`)}
@@ -372,12 +510,10 @@ const WitnessReportDetail = () => {
                             <Trash2 size={18} />
                             <span>Withdraw Case</span>
                         </button>
-                        {report.status === 'closed' && (
-                            <button className="btn-nav-primary">
-                                <Download size={18} />
-                                <span>Download FIR Packet</span>
-                            </button>
-                        )}
+                        <button className="btn-nav-primary" onClick={generateFIRPDF}>
+                            <Download size={18} />
+                            <span>Download Full Report</span>
+                        </button>
                     </div>
 
                     <div style={{ marginTop: '24px', display: 'flex', gap: '20px' }}>
@@ -391,53 +527,12 @@ const WitnessReportDetail = () => {
                 </div>
 
                 <aside className="sidebar-panel">
-                    <div className="panel-card">
-                        <div className="panel-title">
-                            <History size={18} />
-                            <span>Intervention Timeline</span>
-                        </div>
-                        <div className="timeline-track">
-                            <div className={`timeline-node done`}>
-                                <div className="node-dot"><CheckCircle2 size={14} /></div>
-                                <div className="node-content">
-                                    <span className="node-label">Report Submitted</span>
-                                    <span className="node-meta">{new Date(report.createdAt).toLocaleDateString()}</span>
-                                </div>
-                            </div>
+                    <LogEntryForm reportId={id} onLogAdded={handleLogAdded} />
 
-                            <div className={`timeline-node ${report.riskAssessment ? 'done' : 'active'}`}>
-                                <div className="node-dot">{report.riskAssessment ? <CheckCircle2 size={14} /> : <Activity size={14} />}</div>
-                                <div className="node-content">
-                                    <span className="node-label">Risk Assessment</span>
-                                    <span className="node-meta">{report.riskAssessment ? 'Automated Analysis Complete' : 'In Progress'}</span>
-                                </div>
-                            </div>
-
-                            <div className={`timeline-node ${report.status === 'action_taken' || report.status === 'closed' ? 'done' : report.status === 'reviewed' ? 'active' : ''}`}>
-                                <div className="node-dot"><Clock size={14} /></div>
-                                <div className="node-content">
-                                    <span className="node-label">Authority Review</span>
-                                    <span className="node-meta">{report.status === 'pending' ? 'Pending Queue' : 'Case Manager Assigned'}</span>
-                                </div>
-                            </div>
-
-                            <div className={`timeline-node ${report.status === 'action_taken' || report.status === 'closed' ? 'done' : ''}`}>
-                                <div className="node-dot"><AlertTriangle size={14} /></div>
-                                <div className="node-content">
-                                    <span className="node-label">Police Notification</span>
-                                    <span className="node-meta">Legal Intervention Stage</span>
-                                </div>
-                            </div>
-
-                            <div className={`timeline-node ${report.status === 'closed' ? 'done' : ''}`}>
-                                <div className="node-dot"><Scale size={14} /></div>
-                                <div className="node-content">
-                                    <span className="node-label">Case Resolved</span>
-                                    <span className="node-meta">FIR Generated</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <AdvancedTimeline
+                        logs={report.progressLogs || []}
+                        status={report.status}
+                    />
 
                     <div className="panel-card" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0' }}>
                         <div className="privacy-reassurance">
