@@ -14,6 +14,7 @@ const server = http.createServer(app); // Wrap Express in http.Server for Socket
 // ── Socket.io ──────────────────────────────────────────────────────────
 const allowedOrigins = [
   process.env.FRONTEND_URL,
+  'https://aram-liard.vercel.app',
   'http://localhost:3000',
   'http://localhost:3001',
   'http://127.0.0.1:3000',
