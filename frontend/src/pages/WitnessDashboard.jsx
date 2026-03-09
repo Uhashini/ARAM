@@ -42,7 +42,7 @@ const WitnessDashboard = () => {
   const fetchAnalytics = useCallback(async (token) => {
     setAnalyticsLoading(true);
     try {
-      const resp = await fetch('http://127.0.0.1:5001/api/witness/analytics/summary', {
+      const resp = await fetch('https://aram-ira2.onrender.com/api/witness/analytics/summary', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await resp.json();
@@ -61,7 +61,7 @@ const WitnessDashboard = () => {
       setUser(parsedUser);
       setLoading(true);
       try {
-        const response = await fetch('http://127.0.0.1:5001/api/witness/my-reports', {
+        const response = await fetch('https://aram-ira2.onrender.com/api/witness/my-reports', {
           headers: {
             'Authorization': `Bearer ${parsedUser.token} `
           }
@@ -97,7 +97,7 @@ const WitnessDashboard = () => {
       const userInfo = localStorage.getItem('userInfo');
       const { token } = JSON.parse(userInfo);
 
-      const response = await fetch(`http://127.0.0.1:5001/api/witness/report/${reportToDelete._id}`, {
+      const response = await fetch(`https://aram-ira2.onrender.com/api/witness/report/${reportToDelete._id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -153,7 +153,7 @@ const WitnessDashboard = () => {
       const userInfo = localStorage.getItem('userInfo');
       const { token } = JSON.parse(userInfo);
 
-      const response = await fetch(`http://127.0.0.1:5001/api/witness/reports/export/${reportType}`, {
+      const response = await fetch(`https://aram-ira2.onrender.com/api/witness/reports/export/${reportType}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 

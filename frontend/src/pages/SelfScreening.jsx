@@ -85,7 +85,7 @@ const SelfScreening = () => {
         if (userInfo) {
             try {
                 const { token } = JSON.parse(userInfo);
-                const response = await fetch('http://127.0.0.1:5001/api/auth/risk-assessment', {
+                const response = await fetch('https://aram-ira2.onrender.com/api/auth/risk-assessment', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

@@ -414,7 +414,7 @@ const WitnessReport = () => {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch('http://127.0.0.1:5001/api/witness/report', {
+      const response = await fetch('https://aram-ira2.onrender.com/api/witness/report', {
         method: 'POST',
         headers: headers,
         body: formDataToSend,

@@ -27,7 +27,7 @@ const EvidenceVault = () => {
 
             try {
                 const { token } = JSON.parse(userInfo);
-                const response = await fetch('http://127.0.0.1:5001/api/victim/my-reports', {
+                const response = await fetch('https://aram-ira2.onrender.com/api/victim/my-reports', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await response.json();
@@ -186,7 +186,7 @@ const EvidenceVault = () => {
                                             {report.evidence.map((file, idx) => (
                                                 <a
                                                     key={idx}
-                                                    href={`http://127.0.0.1:5001/${file.fileUrl.replace(/\\/g, '/')}`}
+                                                    href={`https://aram-ira2.onrender.com/${file.fileUrl.replace(/\\/g, '/')}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="file-link"

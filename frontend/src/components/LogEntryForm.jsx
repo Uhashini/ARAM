@@ -23,7 +23,7 @@ const LogEntryForm = ({ reportId, onLogAdded }) => {
             const userInfo = localStorage.getItem('userInfo');
             const { token } = JSON.parse(userInfo);
 
-            const response = await fetch(`http://127.0.0.1:5001/api/witness/report/${reportId}/log`, {
+            const response = await fetch(`https://aram-ira2.onrender.com/api/witness/report/${reportId}/log`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

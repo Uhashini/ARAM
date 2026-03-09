@@ -95,7 +95,7 @@ const WitnessReportEdit = () => {
             }
 
             const { token } = JSON.parse(userInfo);
-            const response = await fetch(`http://127.0.0.1:5001/api/witness/report/${id}`, {
+            const response = await fetch(`https://aram-ira2.onrender.com/api/witness/report/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -153,7 +153,7 @@ const WitnessReportEdit = () => {
             const userInfo = localStorage.getItem('userInfo');
             const { token } = JSON.parse(userInfo);
 
-            const response = await fetch(`http://127.0.0.1:5001/api/witness/report/${id}`, {
+            const response = await fetch(`https://aram-ira2.onrender.com/api/witness/report/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

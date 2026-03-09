@@ -21,7 +21,7 @@ const AdminDashboard = () => {
     console.log('Active tab changed to:', activeTab);
   }, [activeTab]);
 
-  const API_BASE = 'http://localhost:5001'; // Standardized to localhost
+  const API_BASE = 'https://aram-ira2.onrender.com'; // Standardized to localhost
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);

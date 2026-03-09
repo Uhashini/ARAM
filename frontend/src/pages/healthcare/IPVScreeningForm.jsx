@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API = 'http://localhost:5001/api/healthcare';
+const API = 'https://aram-ira2.onrender.com/api/healthcare';
 const hdrs = () => { const u = JSON.parse(localStorage.getItem('userInfo') || '{}'); return { 'Content-Type': 'application/json', Authorization: `Bearer ${u.token || ''}` }; };
 const riskClass = l => l === 'HIGH' ? 'risk-high' : l === 'MEDIUM' ? 'risk-medium' : 'risk-low';
 

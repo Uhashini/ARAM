@@ -10,7 +10,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Users, Plus, Trash2, Pencil, CheckCircle2, AlertCircle, Shield, Phone, X, Save } from 'lucide-react';
 import './TrustedContacts.css';
 
-const API = 'http://127.0.0.1:5001';
+const API = 'https://aram-ira2.onrender.com';
 
 const RELATIONSHIPS = [
     { value: 'family', label: '👨‍👩‍👧 Family' },

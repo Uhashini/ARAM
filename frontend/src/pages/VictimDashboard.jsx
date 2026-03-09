@@ -175,7 +175,7 @@ const VictimDashboard = () => {
       if (raw) {
         try {
           const { token } = JSON.parse(raw);
-          const res = await fetch('http://127.0.0.1:5001/api/auth/me', {
+          const res = await fetch('https://aram-ira2.onrender.com/api/auth/me', {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (res.ok) setUser(await res.json());

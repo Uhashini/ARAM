@@ -28,7 +28,7 @@ const Journal = () => {
 
         try {
             const { token } = JSON.parse(userInfo);
-            const response = await fetch('http://127.0.0.1:5001/api/journal', {
+            const response = await fetch('https://aram-ira2.onrender.com/api/journal', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -55,7 +55,7 @@ const Journal = () => {
 
         try {
             const { token } = JSON.parse(userInfo);
-            const response = await fetch('http://127.0.0.1:5001/api/journal', {
+            const response = await fetch('https://aram-ira2.onrender.com/api/journal', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ const Journal = () => {
 
         try {
             const { token } = JSON.parse(userInfo);
-            const response = await fetch(`http://127.0.0.1:5001/api/journal/${id}`, {
+            const response = await fetch(`https://aram-ira2.onrender.com/api/journal/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`

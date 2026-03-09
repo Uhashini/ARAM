@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import './SafetyPlanner.css';
 import aramLogo from '../assets/aram-hero-logo.png';
 
-const API_BASE = 'http://127.0.0.1:5001';
+const API_BASE = 'https://aram-ira2.onrender.com';
 
 const SafetyPlanner = () => {
     const navigate = useNavigate();

@@ -11,8 +11,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { io as SocketIO } from 'socket.io-client';
 
-const API = 'http://127.0.0.1:5001';
-const SOCKET_URL = 'http://127.0.0.1:5001';
+const API = 'https://aram-ira2.onrender.com';
+const SOCKET_URL = 'https://aram-ira2.onrender.com';
 const PING_INTERVAL_MS = 8000;
 
 const getToken = () => {

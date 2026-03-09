@@ -11,7 +11,7 @@ const Login = () => {
   const from = location.state?.from?.pathname || null;
   const message = location.state?.message || null;
 
-  const API_URL = 'http://localhost:5001'; // Standardized to localhost
+  const API_URL = 'https://aram-ira2.onrender.com'; // Standardized to localhost
   const [isLogin, setIsLogin] = useState(true); // Toggle between Login and Signup
   const [formData, setFormData] = useState({
     name: '',
