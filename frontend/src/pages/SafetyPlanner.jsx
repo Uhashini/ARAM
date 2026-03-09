@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+/* eslint-disable no-unused-vars */
 import {
     Shield, Lock, Phone, MapPin, Briefcase, FileText,
     CheckCircle, AlertTriangle, ChevronRight, LogOut,
     Plus, Trash2, Save, Info, ArrowLeft, Heart, Eye
 } from 'lucide-react';
+/* eslint-enable no-unused-vars */
 import { motion, AnimatePresence } from 'framer-motion';
 import './SafetyPlanner.css';
 import aramLogo from '../assets/aram-hero-logo.png';

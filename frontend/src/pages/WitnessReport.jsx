@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 /* eslint-disable no-unused-vars */
 import {
-  RotateCcw, ArrowLeft, CheckCircle, AlertTriangle, Shield, User, MapPin,
+  ArrowLeft, CheckCircle, AlertTriangle, Shield, User, MapPin,
   FileText, Upload, Scale, ArrowRight, Eye, Smartphone, Zap, Heart,
-  MessageSquare, Briefcase, Plus, Lock, ChevronRight, X, Navigation, Search
+  MessageSquare, Lock, ChevronRight, X, Navigation, 
 } from 'lucide-react';
 /* eslint-enable no-unused-vars */
 import { motion, AnimatePresence } from 'framer-motion';

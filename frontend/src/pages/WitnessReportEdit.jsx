@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 /* eslint-disable no-unused-vars */
 import {
-    ArrowLeft, ShieldCheck, Lock, Activity, Clock, User,
-    MapPin, AlertTriangle, MessageSquare, Check, X,
-    ChevronRight, Smartphone, AlertCircle, Info, ShieldAlert, Navigation
+    ArrowLeft, ShieldCheck, Lock, Activity,
+    Check, ChevronRight, Smartphone, ShieldAlert, Navigation
 } from 'lucide-react';
 /* eslint-enable no-unused-vars */
 import { motion, AnimatePresence } from 'framer-motion';
@@ -84,12 +83,7 @@ const WitnessReportEdit = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        fetchReport();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [id]);
-
-    const fetchReport = async () => {
+    const fetchReport = useCallback(async () => {
         try {
             const userInfo = localStorage.getItem('userInfo');
             if (!userInfo) {
@@ -121,7 +115,11 @@ const WitnessReportEdit = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, navigate]);
+
+    useEffect(() => {
+        fetchReport();
+    }, [fetchReport]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;

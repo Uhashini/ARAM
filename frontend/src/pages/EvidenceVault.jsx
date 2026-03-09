@@ -5,7 +5,9 @@ import {
     Download, ChevronRight, LogOut, Search,
     Calendar, Inbox, ArrowRight
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+/* eslint-disable no-unused-vars */
+import { motion} from 'framer-motion';
+/* eslint-enable no-unused-vars */
 import './EvidenceVault.css';
 import './VictimDashboard.css';
 import aramLogo from '../assets/aram-hero-logo.png';

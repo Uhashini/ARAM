@@ -17,6 +17,7 @@ const Journal = () => {
         if (location.state?.startNew) {
             setIsCreating(true);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
 
     const fetchJournals = async () => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Check, AlertTriangle } from 'lucide-react';
+import { Shield, Check } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import '../App.css';
 
