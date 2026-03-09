@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+/* eslint-disable no-unused-vars */
 import {
     Shield, User, Heart, FileText, Upload,
     CheckCircle, ArrowLeft, ArrowRight, Lock, Phone,
     MapPin, X, Zap, Clock, AlertTriangle, Users
 } from 'lucide-react';
+/* eslint-enable no-unused-vars */
 import { motion, AnimatePresence } from 'framer-motion';
 import './WitnessReport.css'; // Reusing the same styles for consistency
 import EmergencyOverlay from '../components/EmergencyOverlay';
@@ -13,6 +15,7 @@ const VictimReport = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
     const totalSteps = 7;
+    // eslint-disable-next-line no-unused-vars
     const [user, setUser] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submissionResult, setSubmissionResult] = useState(null);

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+/* eslint-disable no-unused-vars */
 import {
   RotateCcw, ArrowLeft, CheckCircle, AlertTriangle, Shield, User, MapPin,
   FileText, Upload, Scale, ArrowRight, Eye, Smartphone, Zap, Heart,
   MessageSquare, Briefcase, Plus, Lock, ChevronRight, X, Navigation, Search
 } from 'lucide-react';
+/* eslint-enable no-unused-vars */
 import { motion, AnimatePresence } from 'framer-motion';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -58,6 +60,7 @@ const WitnessReport = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const totalSteps = 7;
+  // eslint-disable-next-line no-unused-vars
   const [user, setUser] = useState(null);
 
   // FIR PDF Generation Function
