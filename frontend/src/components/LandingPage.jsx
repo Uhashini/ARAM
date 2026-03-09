@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import '../App.css';
 import Hero from './Hero';
 import RoleSelection from './RoleSelection';

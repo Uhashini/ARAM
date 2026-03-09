@@ -11,10 +11,10 @@
  * Rendered via ReactDOM.createPortal → directly on document.body
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
-import { Shield, Eye, Phone, Heart, Siren, Copy, CheckCircle2, Lock, MapPin, X, RefreshCw } from 'lucide-react';
+import { Shield, Eye, Phone, Heart, Siren, Copy, CheckCircle2, Lock, MapPin, RefreshCw } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 import './EmergencyOverlay.css';
 import useEmergencySession from '../hooks/useEmergencySession';
@@ -152,7 +152,7 @@ const EmergencyOverlay = ({ onSessionEnd }) => {
     const [showPinDialog, setShowPinDialog] = useState(false);
     const [pinError, setPinError] = useState('');
     const [pinLoading, setPinLoading] = useState(false);
-    const [ticks, setTicks] = useState(0); // force re-render for "Xs ago"
+    const [, setTicks] = useState(0); // force re-render for "Xs ago"
     const [mapCenter, setMapCenter] = useState(null);
 
     // Update "Xs ago" every 5s

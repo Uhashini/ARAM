@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Phone, Shield, ExternalLink } from 'lucide-react';
+import { Phone } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import '../App.css';
 
