@@ -310,6 +310,7 @@ const WitnessReport = () => {
     abuseType: [],
     frequency: 'first-time',
     location: '',
+    region: { country: 'India', state: '', district: '' },
     locationCoordinates: {
       type: 'Point',
       coordinates: [78.9629, 20.5937] // [lng, lat] for GeoJSON
@@ -568,6 +569,24 @@ const WitnessReport = () => {
                   <option value="ongoing">Repeated abuse</option>
                   <option value="permanent">Ongoing danger</option>
                 </select>
+              </div>
+            </div>
+
+            <div className="form-grid-2">
+              <div className="input-group-fluid">
+                <label>State</label>
+                <select name="state" value={formData.region.state} onChange={(e) => handleInputChange(e, 'region')} style={{ width: '100%', padding: '0.9rem', borderRadius: '0.75rem', border: '1px solid #e5e7eb', background: 'white' }}>
+                  <option value="">Select State</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                </select>
+              </div>
+              <div className="input-group-fluid">
+                <label>District</label>
+                <input type="text" name="district" value={formData.region.district} onChange={(e) => handleInputChange(e, 'region')} placeholder="Your District" />
               </div>
             </div>
 

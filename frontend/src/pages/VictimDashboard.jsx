@@ -266,7 +266,7 @@ const VictimDashboard = () => {
           <ModuleCard icon={Lock} title="Safety Planner" desc="Interactive escape plans & bag checklists." color="#0ea5e9" onClick={() => navigate('/safety-planning')} />
           <ModuleCard icon={Home} title="Shelters & Help" desc="Find verified safe houses nearby." color="#6366f1" liveStatus="4 Nearby" onClick={() => navigate('/resources/shelters')} />
           <ModuleCard icon={Heart} title="Counselling" desc="Book trauma-informed therapy sessions." color="#ec4899" liveStatus="2 Online" onClick={() => navigate('/healthcare')} />
-          <ModuleCard icon={Shield} title="Evidence Vault" desc="Your evidence is securely stored and cannot be altered." color="#10b981" liveStatus="12 Files" onClick={() => { }} />
+          <ModuleCard icon={Shield} title="Evidence Vault" desc="Your evidence is securely stored and cannot be altered." color="#10b981" liveStatus="12 Files" onClick={() => navigate('/evidence-vault')} />
           <ModuleCard icon={FileText} title="Legal Rights" desc="DV Act details, child custody & court guides." color="#f59e0b" onClick={() => navigate('/resources/legal')} />
 
           {/* Row 4: Timeline — full width */}
