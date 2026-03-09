@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Shield, Lock, PhoneCall, ArrowRight, Eye, FileText, ChevronRight, Search, Trash2, Edit, Download, Trophy, Zap, HeartHandshake } from 'lucide-react';
+import { Shield, Lock, PhoneCall, ArrowRight, Eye, FileText, ChevronRight, Search, Trash2, Edit, Download, Trophy, Zap, HeartHandshake, AlertTriangle } from 'lucide-react';
 import { DataGrid } from '@mui/x-data-grid';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -146,6 +146,33 @@ const WitnessDashboard = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleExportExcel = async (reportType) => {
+    try {
+      const userInfo = localStorage.getItem('userInfo');
+      const { token } = JSON.parse(userInfo);
+
+      const response = await fetch(`http://127.0.0.1:5001/api/witness/reports/export/${reportType}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `witness_${reportType}_report_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      } else {
+        alert('Failed to generate report');
+      }
+    } catch (err) {
+      console.error("Error exporting report", err);
+      alert('Error connecting to server');
+    }
   };
 
   const filteredReports = reports.filter(report => {
@@ -302,6 +329,13 @@ const WitnessDashboard = () => {
                 <BarChart size={18} />
                 <span>Safety Insights</span>
               </button>
+              <button
+                className={`dashboard-tab-btn ${activeTab === 'reports-center' ? 'active' : ''}`}
+                onClick={() => setActiveTab('reports-center')}
+              >
+                <FileText size={18} />
+                <span>Reporting Center</span>
+              </button>
             </div>
           </header>
 
@@ -422,7 +456,7 @@ const WitnessDashboard = () => {
                 )}
               </section>
             </>
-          ) : (
+          ) : activeTab === 'insights' ? (
             <section className="insights-dashboard-fluid">
               <div className="insights-header-flow">
                 <h3>Analytical Data & Safety Trends</h3>
@@ -537,6 +571,51 @@ const WitnessDashboard = () => {
                 </div>
               )}
             </section>
+          ) : activeTab === 'reports-center' ? (
+            <section className="reports-center-section">
+              <div className="reports-center-header">
+                <h3>Certified Reporting Center</h3>
+                <p>Generate and download official compliance and activity records for institutional submission.</p>
+              </div>
+
+              <div className="report-catalog-grid">
+                {[
+                  { id: 'analytics', title: 'Analytics Summary', desc: 'Aggregated abuse types and risk trends.', icon: BarChart },
+                  { id: 'compliance', title: 'Compliance Audit', desc: 'Privacy mode compliance and consent logs.', icon: Shield },
+                  { id: 'risk', title: 'Risk Distribution', desc: 'Geographic and severity-based risk mapping.', icon: AlertTriangle },
+                  { id: 'activity', title: 'User Activity', desc: 'Engagement metrics and intervention history.', icon: Zap }
+                ].map(report => {
+                  const IconComponent = report.icon;
+                  return (
+                    <div key={report.id} className="report-catalog-card">
+                      <div className="report-card-icon">
+                        <IconComponent size={24} />
+                      </div>
+                      <div className="report-card-body">
+                        <h4>{report.title}</h4>
+                        <p>{report.desc}</p>
+                        <div className="report-card-actions">
+                          <button
+                            className="btn-excel-export"
+                            onClick={() => handleExportExcel(report.id)}
+                          >
+                            <Download size={15} />
+                            Excel Export
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="reporting-disclaimer">
+                <Lock size={14} />
+                <span>All generated reports are encrypted and comply with data protection standards.</span>
+              </div>
+            </section>
+          ) : (
+            <div /> // Fallback
           )}
         </div> {/* Closes main-content-flow */}
 

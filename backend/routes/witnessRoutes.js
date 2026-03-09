@@ -310,7 +310,7 @@ router.post('/report/:id/log', authenticate, async (req, res) => {
 
 // @route   GET api/witness/analytics/summary
 // @desc    Get aggregated analytics for witness reports
-// @access  Private (Admin/Staff only ideally, but keeping it flexible for now)
+// @access  Private
 router.get('/analytics/summary', authenticate, async (req, res) => {
     try {
         // 1. Abuse Type Distribution
@@ -353,6 +353,90 @@ router.get('/analytics/summary', authenticate, async (req, res) => {
     } catch (err) {
         console.error('Error fetching analytics:', err);
         res.status(500).json({ message: 'Server error while fetching analytics' });
+    }
+});
+
+// --- NEW SPECIALIZED EXCEL/CSV REPORTS ---
+
+// @route   GET api/witness/reports/export/analytics
+// @desc    Export Analytics Summary as CSV
+router.get('/reports/export/analytics', authenticate, async (req, res) => {
+    try {
+        const stats = await WitnessReport.aggregate([
+            { $group: { _id: "$abuseType", count: { $sum: 1 }, avgRisk: { $first: "$riskAssessment.riskScore" } } }
+        ]);
+
+        let csv = "Abuse Type,Report Count,Sample Risk\n";
+        stats.forEach(s => {
+            const types = Array.isArray(s._id) ? s._id.join(";") : s._id;
+            csv += `"${types}",${s.count},${s.avgRisk || 'N/A'}\n`;
+        });
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=witness_analytics_summary.csv');
+        res.status(200).send(csv);
+    } catch (err) {
+        res.status(500).json({ message: 'Error generating analytics report' });
+    }
+});
+
+// @route   GET api/witness/reports/export/compliance
+// @desc    Export Compliance Audit as CSV
+router.get('/reports/export/compliance', authenticate, async (req, res) => {
+    try {
+        const reports = await WitnessReport.find({}, 'reportId privacyMode reporterMode createdAt consent status');
+
+        let csv = "Report ID,Privacy Mode,Reporter Mode,Date,Consent Given,Status\n";
+        reports.forEach(r => {
+            csv += `${r.reportId},${r.privacyMode},${r.reporterMode},${r.createdAt.toISOString()},${r.consent?.isInformationTrue ? 'YES' : 'NO'},${r.status}\n`;
+        });
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=compliance_audit_log.csv');
+        res.status(200).send(csv);
+    } catch (err) {
+        res.status(500).json({ message: 'Error generating compliance report' });
+    }
+});
+
+// @route   GET api/witness/reports/export/risk
+// @desc    Export Risk Distribution as CSV
+router.get('/reports/export/risk', authenticate, async (req, res) => {
+    try {
+        const reports = await WitnessReport.find({}, 'reportId location riskAssessment.riskScore routing.priorityLevel');
+
+        let csv = "Report ID,Location,Risk Score,Priority\n";
+        reports.forEach(r => {
+            const loc = (r.location || "N/A").replace(/,/g, " ");
+            csv += `${r.reportId},"${loc}",${r.riskAssessment?.riskScore || 'LOW'},${r.routing?.priorityLevel || 'P3'}\n`;
+        });
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=risk_distribution_report.csv');
+        res.status(200).send(csv);
+    } catch (err) {
+        res.status(500).json({ message: 'Error generating risk report' });
+    }
+});
+
+// @route   GET api/witness/reports/export/activity
+// @desc    Export User Activity (Engagement) as CSV
+router.get('/reports/export/activity', authenticate, async (req, res) => {
+    try {
+        const stats = await WitnessReport.aggregate([
+            { $group: { _id: "$user", totalReports: { $sum: 1 }, lastReport: { $max: "$createdAt" } } }
+        ]);
+
+        let csv = "User ID,Total Reports submitted,Last Activity Date\n";
+        stats.forEach(s => {
+            csv += `${s._id || 'Anonymous'},${s.totalReports},${s.lastReport ? s.lastReport.toISOString() : 'N/A'}\n`;
+        });
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename=witness_activity_metrics.csv');
+        res.status(200).send(csv);
+    } catch (err) {
+        res.status(500).json({ message: 'Error generating activity report' });
     }
 });
 
