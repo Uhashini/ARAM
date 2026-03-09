@@ -6,8 +6,8 @@ const Session = require('../models/Session');
 class AuthService {
   constructor() {
     this.jwtSecret = process.env.JWT_SECRET;
-    this.jwtExpiresIn = process.env.JWT_EXPIRES_IN || '15m';
-    this.refreshTokenExpiresIn = process.env.REFRESH_TOKEN_EXPIRES_IN || '7d';
+    this.jwtExpiresIn = process.env.JWT_EXPIRE || '15m';
+    this.refreshTokenExpiresIn = process.env.JWT_REFRESH_EXPIRE || '7d';
     
     if (!this.jwtSecret) {
       throw new Error('JWT_SECRET environment variable is required');

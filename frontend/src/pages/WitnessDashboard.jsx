@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Shield, Lock, PhoneCall, Clock, ArrowRight, ExternalLink, MapPin, Eye, FileText, ChevronRight, Search, Trash2, Edit } from 'lucide-react';
+import { Shield, Lock, PhoneCall, ArrowRight, Eye, FileText, ChevronRight, Search, Trash2, Edit, Download, Trophy, Zap, HeartHandshake } from 'lucide-react';
 import { DataGrid } from '@mui/x-data-grid';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, LineChart, Line, Legend
+} from 'recharts';
 import { Box, TextField, InputAdornment, Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from '@mui/material';
 import '../App.css';
 import './WitnessDashboard.css';
@@ -13,12 +17,44 @@ const WitnessDashboard = () => {
   const [reports, setReports] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('reports');
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [filterSeverity, setFilterSeverity] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState(null);
 
-  const fetchReports = async () => {
+  // Calculate Impact Metrics
+  const impactMetrics = {
+    interventions: reports.filter(r => ['HIGH', 'EXTREME'].includes(r.riskAssessment?.riskScore)).length,
+    safeExits: reports.filter(r => r.status === 'RESOLVED' || r.riskAssessment?.riskScore === 'LOW').length || reports.length, // Fallback/Mocked logic for demo
+    trustScore: Math.min(100, (reports.length * 15) + 25) // Derived trust contribution
+  };
+
+  // Collect all evidence from reports
+  const allEvidence = reports.flatMap(r => (r.evidence || []).map(e => ({
+    ...e,
+    reportId: r.reportId,
+    incidentId: r._id
+  }))).sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
+
+  const fetchAnalytics = useCallback(async (token) => {
+    setAnalyticsLoading(true);
+    try {
+      const resp = await fetch('http://127.0.0.1:5001/api/witness/analytics/summary', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await resp.json();
+      setAnalytics(data);
+    } catch (err) {
+      console.error("Error fetching analytics", err);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  }, []);
+
+  const fetchReports = useCallback(async () => {
     const userInfo = localStorage.getItem('userInfo');
     if (userInfo) {
       const parsedUser = JSON.parse(userInfo);
@@ -27,11 +63,14 @@ const WitnessDashboard = () => {
       try {
         const response = await fetch('http://127.0.0.1:5001/api/witness/my-reports', {
           headers: {
-            'Authorization': `Bearer ${parsedUser.token}`
+            'Authorization': `Bearer ${parsedUser.token} `
           }
         });
         const data = await response.json();
         if (Array.isArray(data)) setReports(data);
+
+        // Also fetch analytics
+        fetchAnalytics(parsedUser.token);
       } catch (err) {
         console.error("Error fetching reports", err);
       } finally {
@@ -40,11 +79,11 @@ const WitnessDashboard = () => {
     } else {
       setLoading(false);
     }
-  };
+  }, [fetchAnalytics]);
 
   useEffect(() => {
     fetchReports();
-  }, []);
+  }, [fetchReports]);
 
   const handleDeleteClick = (report) => {
     setReportToDelete(report);
@@ -82,6 +121,33 @@ const WitnessDashboard = () => {
     window.location.replace("https://www.google.com/search?q=weather+today");
   };
 
+  const handleExport = () => {
+    if (filteredReports.length === 0) return;
+
+    const headers = ["Report ID", "Date", "Location", "Abuse Type", "Risk Level", "Status"];
+    const csvContent = [
+      headers.join(","),
+      ...filteredReports.map(r => [
+        r.reportId || "PENDING",
+        new Date(r.createdAt).toLocaleDateString(),
+        `"${(r.location || "Reported Location").replace(/"/g, '""')}"`,
+        r.abuseType || "N/A",
+        r.riskAssessment?.riskScore || "N/A",
+        r.status || "N/A"
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `witness_reports_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const filteredReports = reports.filter(report => {
     const matchesSeverity = filterSeverity === 'all' || (report.riskAssessment?.riskScore === filterSeverity);
     const matchesSearch = !searchQuery ||
@@ -115,7 +181,7 @@ const WitnessDashboard = () => {
     {
       field: 'actions',
       headerName: 'Actions',
-      width: 200,
+      width: 320,
       sortable: false,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -220,223 +286,259 @@ const WitnessDashboard = () => {
                 <span>Secure & 100% anonymous reporting</span>
               </div>
             </div>
+
+            <div className="dashboard-tabs">
+              <button
+                className={`dashboard-tab-btn ${activeTab === 'reports' ? 'active' : ''}`}
+                onClick={() => setActiveTab('reports')}
+              >
+                <FileText size={18} />
+                <span>My Reports</span>
+              </button>
+              <button
+                className={`dashboard-tab-btn ${activeTab === 'insights' ? 'active' : ''}`}
+                onClick={() => setActiveTab('insights')}
+              >
+                <BarChart size={18} />
+                <span>Safety Insights</span>
+              </button>
+            </div>
           </header>
 
-          {/* Quick Trigger Strip */}
-          <section className="trigger-strip-fluid">
-            <div className="trigger-info">
-              <h3>Spotted an incident?</h3>
-              <p>Every report triggers immediate intervention resources and guidance.</p>
-            </div>
-            <button className="btn-trigger-fluid" onClick={() => navigate('/report-incident')}>
-              Report Now <ChevronRight size={18} />
-            </button>
-          </section>
-
-          {/* 3 D's of Intervention */}
-          <section className="ddd-section-fluid">
-            <h3>The 3 D's of Intervention</h3>
-            <div className="ddd-flow-fluid">
-              <div className="ddd-node distract">
-                <span className="node-num">01</span>
-                <h5>Distract</h5>
-                <p>Interrupt the situation indirectly to de-escalate without confrontation.</p>
-              </div>
-              <div className="ddd-node delegate">
-                <span className="node-num">02</span>
-                <h5>Delegate</h5>
-                <p>Find someone else with authority or more experience to help intervene.</p>
-              </div>
-              <div className="ddd-node direct">
-                <span className="node-num">03</span>
-                <h5>Direct</h5>
-                <p>Address the situation specifically if it is safe to do so for everyone.</p>
-              </div>
-            </div>
-          </section>
-
-          {/* Intervention Toolkit */}
-          <section className="toolkit-section-fluid" id="toolkit">
-            <div className="toolkit-header-flow">
-              <div className="toolkit-intro">
-                <h3>Intervention Toolkit</h3>
-                <p>
-                  Knowledge is your most powerful tool. Equip yourself with the specific
-                  indicators of abuse and the exact protocols needed to intervene without
-                  compromising your own or the survivor's safety.
-                </p>
-              </div>
-              <div className="toolkit-accordion-list">
-                <Accordion title="Signs of Abuse" icon={Eye} variant="clean" iconColor="var(--accent-color)">
-                  <ul className="toolkit-list-fluid">
-                    <li>Physical markers (unexplained bruises or clothing choices)</li>
-                    <li>Behavioral shifts (extreme anxiety, withdrawal)</li>
-                    <li>Controlling behavior from a partner</li>
-                  </ul>
-                </Accordion>
-                <Accordion title="Safety Protocols" icon={Lock} variant="clean" iconColor="var(--primary-color)">
-                  <ul className="toolkit-list-fluid">
-                    <li>Use incognito mode for browsing safety tools</li>
-                    <li>Digital footprint management and quick-exit strategies</li>
-                    <li>Safe ways to document evidence</li>
-                  </ul>
-                </Accordion>
-              </div>
-            </div>
-            <div className="toolkit-footer-flow">
-              <Link to="/understand-abuse/what-is-ipv" className="link-standard-fluid">
-                Explore the Full Educational Guide <ChevronRight size={18} />
-              </Link>
-            </div>
-          </section>
-
-          {/* Activity History */}
-          <section className="history-section-fluid">
-            <div className="section-divider-top" />
-            <div className="history-portal-header">
-              <Shield size={32} color="var(--primary-color)" />
-              <h3>Activity History</h3>
-            </div>
-
-            {user ? (
-              <div className="history-list-fluid">
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Track your reports and access detailed FIR summaries securely.</p>
-
-                <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
-                  <TextField
-                    placeholder="Search by Report ID..."
-                    variant="outlined"
-                    size="small"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    sx={{
-                      flexGrow: 1,
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '12px',
-                        backgroundColor: 'white',
-                      }
-                    }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Search size={18} color="var(--text-tertiary)" />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  <select
-                    className="severity-filter-select"
-                    value={filterSeverity}
-                    onChange={(e) => setFilterSeverity(e.target.value)}
-                    style={{
-                      padding: '8px 16px',
-                      borderRadius: '12px',
-                      border: '1px solid #E2E8F0',
-                      backgroundColor: 'white',
-                      color: 'var(--text-secondary)',
-                      fontSize: '0.9rem',
-                      fontWeight: '500'
-                    }}
-                  >
-                    <option value="all">All Severities</option>
-                    <option value="EMERGENCY">Emergency</option>
-                    <option value="HIGH">High</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="LOW">Low</option>
-                  </select>
-                </Box>
-
-                <div className="trust-indicator-row">
-                  <div className="trust-item"><Lock size={14} /> Encrypted</div>
-                  <div className="trust-item"><Shield size={14} /> Anonymous Access</div>
-                  <div className="trust-item"><FileText size={14} /> FIR Summaries</div>
+          {activeTab === 'reports' ? (
+            <>
+              {/* Quick Trigger Strip */}
+              <section className="trigger-strip-fluid">
+                <div className="trigger-info">
+                  <h3>Spotted an incident?</h3>
+                  <p>Every report triggers immediate intervention resources and guidance.</p>
                 </div>
+                <button className="btn-trigger-fluid" onClick={() => navigate('/report-incident')}>
+                  Report Now <ChevronRight size={18} />
+                </button>
+              </section>
 
-                <Box sx={{ height: 500, width: '100%', mt: 2, backgroundColor: 'white', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--divider-soft)' }}>
-                  <DataGrid
-                    rows={filteredReports}
-                    columns={columns}
-                    getRowId={(row) => row._id}
-                    pageSizeOptions={[5, 10, 20]}
-                    initialState={{
-                      pagination: { paginationModel: { pageSize: 10 } },
-                    }}
-                    loading={loading}
-                    disableRowSelectionOnClick
-                    sx={{
-                      border: 'none',
-                      '& .MuiDataGrid-columnHeaders': {
-                        backgroundColor: '#F8FAFC',
-                        color: 'var(--text-secondary)',
-                        fontWeight: '700',
-                      },
-                      '& .MuiDataGrid-cell': {
-                        borderBottom: '1px solid #F1F5F9',
-                      },
-                      '& .MuiDataGrid-footerContainer': {
-                        borderTop: '1px solid #F1F5F9',
-                      }
-                    }}
-                  />
-                </Box>
-
-                <Dialog
-                  open={deleteDialogOpen}
-                  onClose={() => setDeleteDialogOpen(false)}
-                  PaperProps={{
-                    style: { borderRadius: '16px', padding: '8px' }
-                  }}
-                >
-                  <DialogTitle sx={{ fontWeight: 700 }}>Confirm Deletion</DialogTitle>
-                  <DialogContent>
-                    <Typography variant="body1">
-                      Are you sure you want to delete report <strong>#{reportToDelete?.reportId || 'PENDING'}</strong>? This action cannot be undone.
-                    </Typography>
-                  </DialogContent>
-                  <DialogActions sx={{ p: 2, gap: 1 }}>
-                    <Button
-                      onClick={() => setDeleteDialogOpen(false)}
-                      variant="outlined"
-                      sx={{ borderRadius: '12px', textTransform: 'none', px: 3 }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={confirmDelete}
-                      variant="contained"
-                      color="error"
-                      sx={{ borderRadius: '12px', textTransform: 'none', px: 3, boxShadow: 'none' }}
-                    >
-                      OK, Delete
-                    </Button>
-                  </DialogActions>
-                </Dialog>
-              </div>
-            ) : (
-              <div className="history-auth-upsell">
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '1.15rem' }}>
-                  Your personal dashboard for tracking reports and legal documentation.
-                </p>
-                <div className="trust-indicator-row">
-                  <div className="trust-item"><Lock size={14} /> Encrypted</div>
-                  <div className="trust-item"><Shield size={14} /> Anonymous Access</div>
-                  <div className="trust-item"><FileText size={14} /> FIR Summaries</div>
-                </div>
-                <div className="upsell-context">
-                  <div className="upsell-copy">
-                    <p>
-                      Login to access your private secure vault, track active investigations,
-                      and download official FIR summaries.
-                    </p>
+              {/* 3 D's of Intervention */}
+              <section className="ddd-section-fluid">
+                <h3>The 3 D's of Intervention</h3>
+                <div className="ddd-flow-fluid">
+                  <div className="ddd-node distract">
+                    <span className="node-num">01</span>
+                    <h5>Distract</h5>
+                    <p>Interrupt the situation indirectly to de-escalate without confrontation.</p>
+                  </div>
+                  <div className="ddd-node delegate">
+                    <span className="node-num">02</span>
+                    <h5>Delegate</h5>
+                    <p>Find someone else with authority or more experience to help intervene.</p>
+                  </div>
+                  <div className="ddd-node direct">
+                    <span className="node-num">03</span>
+                    <h5>Direct</h5>
+                    <p>Address the situation specifically if it is safe to do so for everyone.</p>
                   </div>
                 </div>
-                <button className="btn-secondary-fluid" onClick={() => navigate('/login')}>
-                  Login to Secure Vault <ArrowRight size={20} />
-                </button>
+              </section>
+
+              {/* Intervention Toolkit */}
+              <section className="toolkit-section-fluid" id="toolkit">
+                <div className="toolkit-header-flow">
+                  <div className="toolkit-intro">
+                    <h3>Intervention Toolkit</h3>
+                    <p>
+                      Knowledge is your most powerful tool. Equip yourself with the specific
+                      indicators of abuse and the exact protocols needed to intervene without
+                      compromising your own or the survivor's safety.
+                    </p>
+                  </div>
+                  <div className="toolkit-accordion-list">
+                    <Accordion title="Signs of Abuse" icon={Eye} variant="clean" iconColor="var(--accent-color)">
+                      <ul className="toolkit-list-fluid">
+                        <li>Physical markers (unexplained bruises or clothing choices)</li>
+                        <li>Behavioral shifts (extreme anxiety, withdrawal)</li>
+                        <li>Controlling behavior from a partner</li>
+                      </ul>
+                    </Accordion>
+                    <Accordion title="Safety Protocols" icon={Lock} variant="clean" iconColor="var(--primary-color)">
+                      <ul className="toolkit-list-fluid">
+                        <li>Use incognito mode for browsing safety tools</li>
+                        <li>Digital footprint management and quick-exit strategies</li>
+                        <li>Safe ways to document evidence</li>
+                      </ul>
+                    </Accordion>
+                  </div>
+                </div>
+                <div className="toolkit-footer-flow">
+                  <Link to="/understand-abuse/what-is-ipv" className="link-standard-fluid">
+                    Explore the Full Educational Guide <ChevronRight size={18} />
+                  </Link>
+                </div>
+              </section>
+
+              {/* Secure Evidence Vault Preview */}
+              <section className="evidence-vault-section">
+                <div className="vault-header">
+                  <div className="vault-title-group">
+                    <Lock size={24} color="var(--primary-color)" />
+                    <h3>Secure Evidence Vault</h3>
+                  </div>
+                  <p>Encrypted preview of media attached to your reports. Hover to reveal.</p>
+                </div>
+
+                {allEvidence.length > 0 ? (
+                  <div className="evidence-vault-grid">
+                    {allEvidence.slice(0, 6).map((item, idx) => (
+                      <div key={idx} className="vault-item-container">
+                        <div className="vault-media-box">
+                          {item.fileType?.includes('video') ? (
+                            <div className="placeholder-media video">
+                              <Zap size={32} />
+                            </div>
+                          ) : (
+                            <img src={item.fileUrl || "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=500"} alt="Evidence" />
+                          )}
+                          <div className="blur-safety-overlay">
+                            <Lock size={20} />
+                            <span>Privacy Protected</span>
+                          </div>
+                        </div>
+                        <div className="vault-item-meta">
+                          <span className="vault-report-link">#{item.reportId || 'PENDING'}</span>
+                          <span className="vault-date">{new Date(item.uploadedAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="vault-empty-state">
+                    <div className="vault-empty-icon">
+                      <Shield size={40} opacity={0.2} />
+                    </div>
+                    <p>No media evidence found in your reports.</p>
+                    <button className="btn-text-link" onClick={() => navigate('/report-incident')}>
+                      Attach evidence to a new report
+                    </button>
+                  </div>
+                )}
+              </section>
+            </>
+          ) : (
+            <section className="insights-dashboard-fluid">
+              <div className="insights-header-flow">
+                <h3>Analytical Data & Safety Trends</h3>
+                <p>Aggregated data from community reports helps identify risk patterns and high-intervention zones.</p>
               </div>
-            )}
-          </section>
-        </div>
+
+              {analyticsLoading || !analytics ? (
+                <div className="loading-state-fluid">
+                  <div className="spinner-fluid"></div>
+                  <p>Decoding analytics...</p>
+                </div>
+              ) : (
+                <div className="analytics-layout-fluid">
+                  <div className="analytics-row-fluid">
+                    <div className="analytics-card-fluid">
+                      <h4>Abuse Frequency by Type</h4>
+                      <div style={{ width: '100%', height: 300 }}>
+                        <ResponsiveContainer>
+                          <PieChart>
+                            <Pie
+                              data={analytics.abuseTypes}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={60}
+                              outerRadius={90}
+                              paddingAngle={8}
+                              dataKey="count"
+                              nameKey="_id"
+                            >
+                              {analytics.abuseTypes.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={['#6366f1', '#ec4899', '#0ea5e9', '#f43f5e', '#10b981', '#f59e0b'][index % 6]} />
+                              ))}
+                            </Pie>
+                            <Tooltip
+                              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
+                            />
+                            <Legend verticalAlign="bottom" height={36} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+
+                    <div className="analytics-card-fluid">
+                      <h4>Report Volume (30D Trend)</h4>
+                      <div style={{ width: '100%', height: 300 }}>
+                        <ResponsiveContainer>
+                          <LineChart data={analytics.timeline}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                            <XAxis
+                              dataKey="_id"
+                              tick={{ fontSize: 10, fill: '#94a3b8' }}
+                              axisLine={false}
+                              tickLine={false}
+                              dy={10}
+                            />
+                            <YAxis
+                              tick={{ fontSize: 10, fill: '#94a3b8' }}
+                              axisLine={false}
+                              tickLine={false}
+                            />
+                            <Tooltip
+                              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="count"
+                              stroke="#6366f1"
+                              strokeWidth={4}
+                              dot={{ r: 4, fill: '#6366f1', strokeWidth: 2, stroke: '#fff' }}
+                              activeDot={{ r: 8 }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="analytics-card-fluid wide">
+                    <h4>Risk Level Distribution (Operational Load)</h4>
+                    <div style={{ width: '100%', height: 300 }}>
+                      <ResponsiveContainer>
+                        <BarChart data={analytics.riskLevels}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                          <XAxis
+                            dataKey="_id"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: '#64748b', fontWeight: 600 }}
+                          />
+                          <YAxis
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: '#94a3b8' }}
+                          />
+                          <Tooltip
+                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
+                            cursor={{ fill: '#f8fafc' }}
+                          />
+                          <Bar dataKey="count" radius={[8, 8, 0, 0]} barSize={50}>
+                            {analytics.riskLevels.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={
+                                entry._id === 'EMERGENCY' ? '#b91c1c' :
+                                  entry._id === 'HIGH' ? '#dc2626' :
+                                    entry._id === 'MEDIUM' ? '#f59e0b' : '#10b981'
+                              } />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+        </div> {/* Closes main-content-flow */}
 
         {/* Desktop Emergency Panel */}
         <aside className="emergency-panel-desktop">
@@ -460,7 +562,204 @@ const WitnessDashboard = () => {
             </div>
           </a>
         </aside>
-      </div>
+      </div> {/* Closes fluid-layout-container */}
+
+      <section className="history-section-fluid">
+        <div className="section-divider-top" />
+        <div className="history-container-constrained">
+          <div className="history-portal-header">
+            <Shield size={32} color="var(--primary-color)" />
+            <h3>Activity History</h3>
+          </div>
+
+          {user ? (
+            <div className="history-list-fluid">
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Track your reports and access detailed FIR summaries securely.</p>
+
+              <Box sx={{ mb: 3, display: 'flex', gap: 2, alignItems: 'center' }}>
+                <TextField
+                  placeholder="Search by Report ID..."
+                  variant="outlined"
+                  size="small"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  sx={{
+                    flexGrow: 1,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      backgroundColor: 'white',
+                    }
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search size={18} color="var(--text-tertiary)" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <select
+                  className="severity-filter-select"
+                  value={filterSeverity}
+                  onChange={(e) => setFilterSeverity(e.target.value)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '12px',
+                    border: '1px solid #E2E8F0',
+                    backgroundColor: 'white',
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.9rem',
+                    fontWeight: '500'
+                  }}
+                >
+                  <option value="all">All Severities</option>
+                  <option value="EMERGENCY">Emergency</option>
+                  <option value="HIGH">High</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="LOW">Low</option>
+                </select>
+                <button className="btn-export-fluid" onClick={handleExport} style={{
+                  padding: '8px 16px',
+                  borderRadius: '12px',
+                  border: '1px solid #E2E8F0',
+                  backgroundColor: 'white',
+                  color: 'var(--text-secondary)',
+                  fontSize: '0.9rem',
+                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  cursor: 'pointer'
+                }}>
+                  <Download size={16} /> Export CSV
+                </button>
+              </Box>
+
+
+              {/* Witness Impact Scorecard */}
+              <div className="impact-scorecard-flow">
+                <div className="impact-card">
+                  <div className="impact-icon-box interventions">
+                    <Zap size={24} />
+                  </div>
+                  <div className="impact-info">
+                    <span className="impact-label">Interventions Triggered</span>
+                    <h3 className="impact-value">{impactMetrics.interventions}</h3>
+                  </div>
+                </div>
+
+                <div className="impact-card">
+                  <div className="impact-icon-box exits">
+                    <Trophy size={24} />
+                  </div>
+                  <div className="impact-info">
+                    <span className="impact-label">Safe-Exits Facilitated</span>
+                    <h3 className="impact-value">{impactMetrics.safeExits}</h3>
+                  </div>
+                </div>
+
+                <div className="impact-card">
+                  <div className="impact-icon-box trust">
+                    <HeartHandshake size={24} />
+                  </div>
+                  <div className="impact-info">
+                    <span className="impact-label">Community Trust</span>
+                    <h3 className="impact-value">{impactMetrics.trustScore}%</h3>
+                  </div>
+                </div>
+              </div>
+
+              <div className="trust-indicator-row">
+                <div className="trust-item"><Lock size={14} /> Encrypted</div>
+                <div className="trust-item"><Shield size={14} /> Anonymous Access</div>
+                <div className="trust-item"><FileText size={14} /> FIR Summaries</div>
+              </div>
+
+              <Box sx={{ height: 500, width: '100%', mt: 2, backgroundColor: 'white', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--divider-soft)' }}>
+                <DataGrid
+                  rows={filteredReports}
+                  columns={columns}
+                  getRowId={(row) => row._id}
+                  pageSizeOptions={[5, 10, 20]}
+                  initialState={{
+                    pagination: { paginationModel: { pageSize: 10 } },
+                  }}
+                  loading={loading}
+                  disableRowSelectionOnClick
+                  sx={{
+                    border: 'none',
+                    '& .MuiDataGrid-columnHeaders': {
+                      backgroundColor: '#F8FAFC',
+                      color: 'var(--text-secondary)',
+                      fontWeight: '700',
+                    },
+                    '& .MuiDataGrid-cell': {
+                      borderBottom: '1px solid #F1F5F9',
+                    },
+                    '& .MuiDataGrid-footerContainer': {
+                      borderTop: '1px solid #F1F5F9',
+                    }
+                  }}
+                />
+              </Box>
+
+              <Dialog
+                open={deleteDialogOpen}
+                onClose={() => setDeleteDialogOpen(false)}
+                PaperProps={{
+                  style: { borderRadius: '16px', padding: '8px' }
+                }}
+              >
+                <DialogTitle sx={{ fontWeight: 700 }}>Confirm Deletion</DialogTitle>
+                <DialogContent>
+                  <Typography variant="body1">
+                    Are you sure you want to delete report <strong>#{reportToDelete?.reportId || 'PENDING'}</strong>? This action cannot be undone.
+                  </Typography>
+                </DialogContent>
+                <DialogActions sx={{ p: 2, gap: 1 }}>
+                  <Button
+                    onClick={() => setDeleteDialogOpen(false)}
+                    variant="outlined"
+                    sx={{ borderRadius: '12px', textTransform: 'none', px: 3 }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={confirmDelete}
+                    variant="contained"
+                    color="error"
+                    sx={{ borderRadius: '12px', textTransform: 'none', px: 3, boxShadow: 'none' }}
+                  >
+                    OK, Delete
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </div>
+          ) : (
+            <div className="history-auth-upsell">
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '1.15rem' }}>
+                Your personal dashboard for tracking reports and legal documentation.
+              </p>
+              <div className="trust-indicator-row">
+                <div className="trust-item"><Lock size={14} /> Encrypted</div>
+                <div className="trust-item"><Shield size={14} /> Anonymous Access</div>
+                <div className="trust-item"><FileText size={14} /> FIR Summaries</div>
+              </div>
+              <div className="upsell-context">
+                <div className="upsell-copy">
+                  <p>
+                    Login to access your private secure vault, track active investigations,
+                    and download official FIR summaries.
+                  </p>
+                </div>
+              </div>
+              <button className="btn-secondary-fluid" onClick={() => navigate('/login')}>
+                Login to Secure Vault <ArrowRight size={20} />
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Mobile Sticky Bottom Sheet */}
       <div className="mobile-emergency-sheet">

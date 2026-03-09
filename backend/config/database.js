@@ -2,13 +2,11 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.NODE_ENV === 'test' 
-      ? process.env.MONGODB_TEST_URI 
+    const mongoURI = process.env.NODE_ENV === 'test'
+      ? process.env.MONGODB_TEST_URI
       : process.env.MONGODB_URI;
 
-    const conn = await mongoose.connect(mongoURI, {
-      // Remove deprecated options that are now defaults in Mongoose 6+
-    });
+    const conn = await mongoose.connect(mongoURI);
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
 

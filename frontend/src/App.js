@@ -17,6 +17,8 @@ import Shelters from './pages/Shelters';
 import Helplines from './pages/Helplines';
 import SelfScreening from './pages/SelfScreening';
 import Journal from './pages/Journal';
+import EvidenceVault from './pages/EvidenceVault';
+import SafetyPlanner from './pages/SafetyPlanner';
 import ProtectedRoute from './components/ProtectedRoute';
 import useQuickExit from './hooks/useQuickExit';
 
@@ -49,19 +51,20 @@ function App() {
           <Route path="/self-screen" element={<SelfScreening />} />
           <Route path="/journal" element={<Journal />} />
           <Route path="/journal/new" element={<Journal />} />
+          <Route path="/evidence-vault" element={<EvidenceVault />} />
         </Route>
 
         {/* Witness Dashboard (Public or Witness Role) */}
         <Route path="/witness" element={<WitnessDashboard />} />
 
         {/* Healthcare Protected Route */}
-        <Route element={<ProtectedRoute allowedRoles={['healthcare', 'admin']} />}>
+        <Route element={<ProtectedRoute allowedRoles={['healthcare_worker', 'admin']} />}>
           <Route path="/healthcare" element={<HealthcareDashboard />} />
         </Route>
 
         {/* Admin Protected Route */}
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/*" element={<AdminDashboard />} />
         </Route>
 
         {/* Public Resources (Explicitly handled to match home page buttons) */}
@@ -78,8 +81,10 @@ function App() {
         <Route path="/witness/report/:id/edit" element={<WitnessReportEdit />} />
         <Route path="/forms-of-abuse" element={<FormsOfAbuse />} />
 
-        {/* Safety Planning (Placeholder or mapped to existing) */}
-        <Route path="/safety-planning" element={<div className="container" style={{ padding: '100px' }}><h1>Safety Planning</h1><p>Creating a plan to stay safe. Checklist coming soon...</p></div>} />
+        {/* Safety Planning */}
+        <Route element={<ProtectedRoute allowedRoles={['victim', 'admin']} />}>
+          <Route path="/safety-planning" element={<SafetyPlanner />} />
+        </Route>
 
         <Route path="/login" element={<Login />} />
       </Routes>

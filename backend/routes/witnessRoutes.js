@@ -125,6 +125,15 @@ router.post('/report', optionalAuth, upload.array('evidence', 10), async (req, r
             reportData.user = req.user.userId;
         }
 
+        // 5. Add initial system log
+        reportData.progressLogs = [{
+            timestamp: new Date(),
+            type: 'system',
+            category: 'status_change',
+            content: 'Witness report officially submitted and recorded in the system.',
+            actorName: 'System'
+        }];
+
         const newReport = new WitnessReport(reportData);
         const savedReport = await newReport.save();
 
@@ -202,14 +211,31 @@ router.put('/report/:id', authenticate, async (req, res) => {
         const allowedUpdates = [
             'incidentDescription', 'location', 'dateTime', 'witnessRelationship',
             'severityLevel', 'immediateRisk', 'actionsTaken', 'optionalContact', 'provideContact',
-            'locationCoordinates'
+            'locationCoordinates', 'status'
         ];
+
+        let statusChanged = false;
+        let oldStatus = report.status;
 
         allowedUpdates.forEach(field => {
             if (req.body[field] !== undefined) {
+                if (field === 'status' && report[field] !== req.body[field]) {
+                    statusChanged = true;
+                }
                 report[field] = req.body[field];
             }
         });
+
+        if (statusChanged) {
+            report.progressLogs.push({
+                timestamp: new Date(),
+                type: 'system',
+                category: 'status_change',
+                content: `Report status changed from ${oldStatus} to ${report.status}.`,
+                actorId: req.user.userId,
+                actorName: req.user.name || 'Staff'
+            });
+        }
 
         const updatedReport = await report.save();
         res.json({
@@ -243,6 +269,90 @@ router.delete('/report/:id', authenticate, async (req, res) => {
     } catch (err) {
         console.error('Error deleting report:', err);
         res.status(500).json({ message: 'Server error deleting report' });
+    }
+});
+
+// @route   POST api/witness/report/:id/log
+// @desc    Add a manual log entry to a witness report
+// @access  Private
+router.post('/report/:id/log', authenticate, async (req, res) => {
+    try {
+        const { category, content, type } = req.body;
+        const report = await WitnessReport.findById(req.params.id);
+
+        if (!report) {
+            return res.status(404).json({ message: 'Report not found' });
+        }
+
+        // Verify ownership (witness can add logs to their own report)
+        if (report.user && report.user.toString() !== req.user.userId.toString() && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Not authorized to add logs to this report' });
+        }
+
+        const newLog = {
+            timestamp: new Date(),
+            type: type || 'witness',
+            category: category || 'note',
+            content: content,
+            actorId: req.user.userId,
+            actorName: req.user.name || 'Witness'
+        };
+
+        report.progressLogs.push(newLog);
+        await report.save();
+
+        res.status(201).json({ message: 'Log entry added successfully', log: newLog });
+    } catch (err) {
+        console.error('Error adding log:', err);
+        res.status(500).json({ message: 'Server error while adding log' });
+    }
+});
+
+// @route   GET api/witness/analytics/summary
+// @desc    Get aggregated analytics for witness reports
+// @access  Private (Admin/Staff only ideally, but keeping it flexible for now)
+router.get('/analytics/summary', authenticate, async (req, res) => {
+    try {
+        // 1. Abuse Type Distribution
+        const abuseTypeStats = await WitnessReport.aggregate([
+            { $unwind: '$abuseType' },
+            { $group: { _id: '$abuseType', count: { $sum: 1 } } }
+        ]);
+
+        // 2. Risk Level Distribution
+        const riskLevelStats = await WitnessReport.aggregate([
+            { $group: { _id: '$riskAssessment.riskScore', count: { $sum: 1 } } }
+        ]);
+
+        // 3. Status Distribution
+        const statusStats = await WitnessReport.aggregate([
+            { $group: { _id: '$status', count: { $sum: 1 } } }
+        ]);
+
+        // 4. Reports Over Time (Daily - Last 30 days)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const timelineStats = await WitnessReport.aggregate([
+            { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        res.json({
+            abuseTypes: abuseTypeStats,
+            riskLevels: riskLevelStats,
+            statuses: statusStats,
+            timeline: timelineStats
+        });
+    } catch (err) {
+        console.error('Error fetching analytics:', err);
+        res.status(500).json({ message: 'Server error while fetching analytics' });
     }
 });
 

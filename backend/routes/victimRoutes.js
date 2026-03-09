@@ -4,6 +4,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const VictimReport = require('../models/VictimReport');
+const SafetyPlan = require('../models/SafetyPlan');
+const VictimProfile = require('../models/VictimProfile');
 const { authenticate, optionalAuth } = require('../middleware/auth');
 const { calculateRiskScore, determineDestinations } = require('../services/routingService');
 
@@ -91,6 +93,20 @@ router.post('/report', optionalAuth, upload.array('evidence', 10), async (req, r
     }
 });
 
+// @route   GET api/victim/my-reports
+// @desc    Get all reports submitted by the authenticated user
+// @access  Private
+router.get('/my-reports', authenticate, async (req, res) => {
+    try {
+        const reports = await VictimReport.find({ user: req.user.userId })
+            .sort({ createdAt: -1 });
+        res.json({ reports });
+    } catch (err) {
+        console.error('Error fetching victim reports:', err);
+        res.status(500).json({ message: 'Server error while fetching reports' });
+    }
+});
+
 // @route   GET api/victim/emergency-contacts
 // @desc    Get the authenticated user's emergency contacts
 // @access  Private
@@ -141,6 +157,74 @@ router.put('/emergency-contacts', authenticate, async (req, res) => {
     } catch (err) {
         console.error('Error updating emergency contacts:', err);
         res.status(500).json({ message: 'Server error updating contacts', error: err.message });
+    }
+});
+
+// @route   GET api/victim/safety-plan
+// @desc    Get the active safety plan for the authenticated user
+// @access  Private
+router.get('/safety-plan', authenticate, async (req, res) => {
+    try {
+        const profile = await VictimProfile.findOne({ userId: req.user.userId });
+        if (!profile) {
+            return res.json({ plan: null });
+        }
+        const plan = await SafetyPlan.findOne({ victimId: profile._id, isActive: true })
+            .sort({ planVersion: -1 });
+        res.json({ plan });
+    } catch (err) {
+        console.error('Error fetching safety plan:', err);
+        res.status(500).json({ message: 'Server error fetching safety plan' });
+    }
+});
+
+// @route   POST api/victim/safety-plan
+// @desc    Create or update safety plan
+// @access  Private
+router.post('/safety-plan', authenticate, async (req, res) => {
+    try {
+        let profile = await VictimProfile.findOne({ userId: req.user.userId });
+        if (!profile) {
+            // Create a basic profile if it doesn't exist to link the safety plan
+            // Though ideally it should be created during registration or a separate step
+            profile = new VictimProfile({
+                userId: req.user.userId,
+                demographics: { age: 30, gender: 'prefer-not-to-say' } // Placeholders
+            });
+            await profile.save();
+        }
+
+        const planData = { ...req.body, victimId: profile._id, createdBy: req.user.userId };
+
+        // SafetyPlan model's pre-save hook handles versioning and deactivating old plans
+        const newPlan = new SafetyPlan(planData);
+        await newPlan.save();
+
+        res.status(201).json({
+            message: 'Safety plan saved successfully',
+            plan: newPlan
+        });
+    } catch (err) {
+        console.error('Error saving safety plan:', err);
+        res.status(500).json({ message: 'Server error saving safety plan', error: err.message });
+    }
+});
+
+// @route   GET api/victim/safety-plan/history
+// @desc    Get safety plan history
+// @access  Private
+router.get('/safety-plan/history', authenticate, async (req, res) => {
+    try {
+        const profile = await VictimProfile.findOne({ userId: req.user.userId });
+        if (!profile) return res.json({ history: [] });
+
+        const history = await SafetyPlan.find({ victimId: profile._id })
+            .select('createdAt planVersion isActive')
+            .sort({ planVersion: -1 });
+        res.json({ history });
+    } catch (err) {
+        console.error('Error fetching safety plan history:', err);
+        res.status(500).json({ message: 'Server error fetching history' });
     }
 });
 

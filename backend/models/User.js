@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['victim', 'witness', 'healthcare', 'admin'],
+    enum: ['victim', 'witness', 'healthcare_worker', 'admin'],
     default: 'victim',
   },
   organization: {
@@ -40,9 +40,10 @@ const userSchema = new mongoose.Schema({
 // Encrypt password using bcrypt
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
-    next();
+    return next();
   }
-  const salt = await bcrypt.genSalt(10);
+  const rounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
+  const salt = await bcrypt.genSalt(rounds);
   this.password = await bcrypt.hash(this.password, salt);
 });
 

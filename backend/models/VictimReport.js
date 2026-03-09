@@ -27,6 +27,11 @@ const victimReportSchema = new mongoose.Schema({
         phone: String,
         email: String,
         address: String, // Current safe location or home
+        region: {
+            country: { type: String, default: 'India' },
+            state: String,
+            district: String
+        },
         safeContact: {
             name: String,
             phone: String,
