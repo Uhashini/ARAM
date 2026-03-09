@@ -118,10 +118,30 @@ const witnessReportSchema = new mongoose.Schema({
     hasSuicideThreats: Boolean,
     riskScore: {
       type: String,
-      enum: ['LOW', 'MEDIUM', 'HIGH', 'EMERGENCY'],
+      enum: ['LOW', 'MEDIUM', 'HIGH', 'EXTREME'],
       default: 'LOW'
-    }
+    },
+    riskFactors: [String], // Detailed factors like 'Weapon Present', 'Repeat Offender'
+    assessmentTimestamp: { type: Date, default: Date.now }
   },
+
+  // L. Progress Reports & Action Logs
+  progressLogs: [{
+    timestamp: { type: Date, default: Date.now },
+    type: {
+      type: String,
+      enum: ['system', 'witness', 'authority', 'legal', 'medical'],
+      default: 'system'
+    },
+    category: {
+      type: String,
+      enum: ['status_change', 'observation', 'intervention', 'evidence_added', 'note'],
+      default: 'note'
+    },
+    content: { type: String, required: true },
+    actorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    actorName: String // For anonymous or system entries
+  }],
 
   // J. Consent & Legal
   consent: {

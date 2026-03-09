@@ -241,6 +241,131 @@
     gap: 20px;
 }
 
+/* --- Risk Scorecard --- */
+.risk-scorecard-section {
+    margin-top: 2.5rem;
+    padding: 2rem;
+    background: #f8fafc;
+    border-radius: 24px;
+    border: 1px solid #e2e8f0;
+}
+
+.risk-scorecard {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.risk-main-indicator {
+    padding: 2rem;
+    background: white;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 2px solid transparent;
+}
+
+.risk-main-indicator[data-risk="EMERGENCY"] {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.risk-main-indicator[data-risk="HIGH"] {
+    border-color: #f97316;
+    color: #f97316;
+}
+
+.risk-main-indicator[data-risk="MEDIUM"] {
+    border-color: #f59e0b;
+    color: #f59e0b;
+}
+
+.risk-main-indicator[data-risk="LOW"] {
+    border-color: #10b981;
+    color: #10b981;
+}
+
+.risk-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    color: #64748b;
+}
+
+.risk-value {
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.risk-sub {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #94a3b8;
+}
+
+.risk-factors-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.risk-factor {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #94a3b8;
+    border: 1.5px solid #f1f5f9;
+    transition: all 0.3s ease;
+}
+
+.risk-factor.active {
+    color: #dc2626;
+    background: #fef2f2;
+    border-color: #fee2e2;
+}
+
+.safety-protocol-alert {
+    margin-top: 1.5rem;
+    padding: 1rem 1.5rem;
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    border-radius: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.safety-protocol-alert p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #1e40af;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .risk-scorecard {
+        grid-template-columns: 1fr;
+    }
+
+    .risk-factors-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .info-pill {
     background: #FDFBFF;
     border: 1px solid var(--divider-soft);
