@@ -6,7 +6,7 @@ import {
     AlertCircle, Clock, CheckCircle2, UserCheck, ShieldAlert,
     Download, Eye, ExternalLink, FileSearch, Archive, History, Scale
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -38,6 +38,7 @@ const WitnessReportDetail = () => {
 
     useEffect(() => {
         fetchReport();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
     const fetchReport = async () => {

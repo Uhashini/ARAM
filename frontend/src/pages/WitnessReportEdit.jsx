@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+/* eslint-disable no-unused-vars */
 import {
     ArrowLeft, ShieldCheck, Lock, Activity, Clock, User,
     MapPin, AlertTriangle, MessageSquare, Check, X,
     ChevronRight, Smartphone, AlertCircle, Info, ShieldAlert, Navigation
 } from 'lucide-react';
+/* eslint-enable no-unused-vars */
 import { motion, AnimatePresence } from 'framer-motion';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
@@ -84,6 +86,7 @@ const WitnessReportEdit = () => {
 
     useEffect(() => {
         fetchReport();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
     const fetchReport = async () => {
