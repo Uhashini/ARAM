@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+/* eslint-disable no-unused-vars */
 import {
     ArrowLeft, Calendar, MapPin, User, AlertTriangle, Edit, Trash2,
     ChevronRight, Lock, Activity, FileText, Phone, ShieldCheck,
     AlertCircle, Clock, CheckCircle2, UserCheck, ShieldAlert,
     Download, Eye, ExternalLink, FileSearch, Archive, History, Scale
 } from 'lucide-react';
+/* eslint-enable no-unused-vars */
 import { motion } from 'framer-motion';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';

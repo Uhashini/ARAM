@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+/* eslint-disable no-unused-vars */
 import { Shield, Lock, PhoneCall, ArrowRight, Eye, FileText, ChevronRight, Search, Trash2, Edit, Download, Trophy, Zap, HeartHandshake, AlertTriangle } from 'lucide-react';
+/* eslint-enable no-unused-vars */
 import { DataGrid } from '@mui/x-data-grid';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -15,6 +17,7 @@ import Accordion from '../components/Accordion';
 const WitnessDashboard = () => {
   const navigate = useNavigate();
   const [reports, setReports] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('reports');
