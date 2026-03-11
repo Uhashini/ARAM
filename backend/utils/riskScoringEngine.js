@@ -74,6 +74,19 @@ const FACTOR_MAP = {
     'anxiety': 'emotional-abuse'
 };
 
+// ── Logistic Regression Parameters (Synthetic Model) ────────────────────
+const LR_INTERCEPT = -3.5;
+const LR_WEIGHTS = {
+    responseScore: 2.8,
+    injuryScore: 3.2,
+    behaviorScore: 2.5,
+    emotionScore: 1.5
+};
+
+function sigmoid(z) {
+    return 1 / (1 + Math.exp(-z));
+}
+
 /**
  * Calculate AI risk score from screening data
  * @param {Object} screeningData - The screening submission data
@@ -110,16 +123,17 @@ function calculateRiskScore(screeningData) {
     // ── Dimension 4: Emotional State Score (15% weight) ─────────────────
     const emotionScore = EMOTION_SEVERITY[emotion] || 0.1;
 
-    // ── Combined Weighted Probability ───────────────────────────────────
-    const rawProbability = (
-        responseScore * 0.40 +
-        injuryScore * 0.25 +
-        behaviorScore * 0.20 +
-        emotionScore * 0.15
+    // ── Logistic Regression Model (AI-Driven Risk Calculation) ──────────
+    const logOdds = (
+        LR_INTERCEPT +
+        (responseScore * LR_WEIGHTS.responseScore) +
+        (injuryScore * LR_WEIGHTS.injuryScore) +
+        (behaviorScore * LR_WEIGHTS.behaviorScore) +
+        (emotionScore * LR_WEIGHTS.emotionScore)
     );
 
-    // Clamp to [0, 1]
-    const aiProbability = Math.min(Math.max(rawProbability, 0), 1);
+    // Apply Sigmoid to get Probability
+    const aiProbability = sigmoid(logOdds);
 
     // ── Risk Level Classification ───────────────────────────────────────
     let aiRiskLevel;
@@ -157,19 +171,19 @@ function calculateRiskScore(screeningData) {
 
     // ── Explanation Generation ──────────────────────────────────────────
     const explanationParts = [];
-    explanationParts.push(`Screening score: ${totalScore}/${maxScore} (${(normalizedScore * 100).toFixed(0)}% of max).`);
-    if (injuries.length > 0) explanationParts.push(`Physical injuries detected: ${injuries.join(', ')}.`);
+    explanationParts.push(`Screening score: ${totalScore}/${maxScore} (${(normalizedScore * 100).toFixed(0)}%).`);
+    if (injuries.length > 0) explanationParts.push(`Physical injuries: ${injuries.join(', ')}.`);
     if (behaviors.length > 0) explanationParts.push(`Behavioral indicators: ${behaviors.map(b => b.replace(/-/g, ' ')).join(', ')}.`);
     explanationParts.push(`Emotional state: ${emotion}.`);
-    explanationParts.push(`Overall probability: ${(aiProbability * 100).toFixed(1)}% (weighted across 4 dimensions).`);
+    explanationParts.push(`Logistic Regression probability output: ${(aiProbability * 100).toFixed(1)}%.`);
     if (aiRiskLevel === 'HIGH') explanationParts.push('⚠️ HIGH RISK — Immediate intervention recommended.');
 
     return {
         aiRiskLevel,
-        aiProbability: Math.round(aiProbability * 100) / 100,
+        aiProbability: Math.round(aiProbability * 1000) / 1000,
         aiConfidence: Math.round(aiConfidence * 100) / 100,
         aiExplanation: explanationParts.join(' '),
-        aiModelVersion: 'ARAM-RuleEngine-v1.0',
+        aiModelVersion: 'ARAM-LogisticRegression-v2.0',
         riskFactors
     };
 }

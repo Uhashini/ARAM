@@ -158,6 +158,16 @@ router.post('/screening', rateLimitSensitive(), auditLog('CREATE', 'clinical_scr
     }
 });
 
+router.post('/calculate-risk', rateLimitSensitive(), auditLog('CREATE', 'risk_calculation'), async (req, res) => {
+    try {
+        // Runs the Logistic Regression model without saving to DB
+        const aiScores = calculateRiskScore(req.body);
+        res.json({ aiScores, message: 'Logistic Regression completed' });
+    } catch (error) {
+        res.status(400).json({ error: { code: 'CALCULATE_ERROR', message: error.message } });
+    }
+});
+
 router.get('/screening', auditLog('READ', 'clinical_screening'), async (req, res) => {
     try {
         const { patientId, riskLevel } = req.query;

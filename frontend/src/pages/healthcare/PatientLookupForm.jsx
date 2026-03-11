@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './HealthcareVisuals.css';
 
 const API = 'http://localhost:5001/api/healthcare';
 const hdrs = () => {
