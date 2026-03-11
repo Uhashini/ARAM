@@ -1,0 +1,104 @@
+/* Healthcare Dashboard Visual Enhancements */
+
+/* Animated loading spinner for dashboard */
+.hc-loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 180px;
+}
+.hc-spinner {
+  width: 54px;
+  height: 54px;
+  border: 6px solid #e8ecf1;
+  border-top: 6px solid #3498db;
+  border-radius: 50%;
+  animation: hc-spin 1s linear infinite;
+  margin: 0 auto;
+}
+@keyframes hc-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Subtle floating animation for stat cards */
+.hc-stat-card {
+  position: relative;
+  animation: hc-float 3.2s ease-in-out infinite;
+}
+@keyframes hc-float {
+  0%, 100% { top: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  50% { top: -6px; box-shadow: 0 8px 24px rgba(52,152,219,0.10); }
+}
+
+/* Animated chart entrance */
+.hc-section {
+  animation: hc-fadein 0.8s cubic-bezier(.4,0,.2,1);
+}
+@keyframes hc-fadein {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Animated tab underline */
+.hc-tab.active {
+  position: relative;
+  overflow: visible;
+}
+.hc-tab.active::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 50%;
+  bottom: -3px;
+  width: 60%;
+  height: 3px;
+  background: linear-gradient(90deg, #3498db 60%, #2176bd 100%);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  animation: hc-underline 0.5s cubic-bezier(.4,0,.2,1);
+}
+@keyframes hc-underline {
+  from { width: 0; opacity: 0; }
+  to { width: 60%; opacity: 1; }
+}
+
+/* Decorative SVG background for dashboard */
+.hc-dashboard-bg {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  z-index: 0;
+  opacity: 0.13;
+  pointer-events: none;
+}
+
+/* Animated button pulse for primary actions */
+.hc-btn-primary {
+  animation: hc-btn-pulse 2.2s infinite;
+}
+@keyframes hc-btn-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52,152,219,0.18); }
+  70% { box-shadow: 0 0 0 10px rgba(52,152,219,0.08); }
+}
+
+/* Animated progress bar for AI model calculation */
+.hc-progress-anim {
+  width: 100%;
+  height: 6px;
+  background: #e8ecf1;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 12px 0 0 0;
+}
+.hc-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3498db 0%, #2176bd 100%);
+  border-radius: 3px;
+  animation: hc-progress-move 1.2s linear infinite;
+  width: 60%;
+}
+@keyframes hc-progress-move {
+  0% { margin-left: -60%; }
+  100% { margin-left: 100%; }
+}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './HealthcareVisuals.css';
 
 const API = 'https://aram-ira2.onrender.com/api/healthcare';
 const hdrs = () => {

@@ -24,8 +24,29 @@ const IPVScreeningForm = () => {
     const [editId, setEditId] = useState(null);
     const [filterPid, setFilterPid] = useState('');
     const [msg, setMsg] = useState('');
+    const [isCalculatingModel, setIsCalculatingModel] = useState(false);
 
     const flash = t => { setMsg(t); setTimeout(() => setMsg(''), 3000); };
+
+    const calculateModel = async () => {
+        setIsCalculatingModel(true);
+        try {
+            const r = await fetch(`${API}/calculate-risk`, { method: 'POST', headers: hdrs(), body: JSON.stringify(form) });
+            const d = await r.json();
+            if (r.ok) {
+                setForm({
+                    ...form,
+                    riskAssessment: {
+                        ...form.riskAssessment,
+                        ...d.aiScores,
+                        finalRiskLevel: form.riskAssessment?.finalRiskLevel === 'LOW' ? d.aiScores.aiRiskLevel : form.riskAssessment?.finalRiskLevel // auto update if they haven't manually escalated it
+                    }
+                });
+                flash('Logistic Regression completed');
+            } else flash(d.error?.message || 'Calculation failed');
+        } catch (e) { flash('Network error during calculation'); }
+        setTimeout(() => setIsCalculatingModel(false), 600); // allow animation to finish
+    };
 
     const load = async () => {
         try {
@@ -89,7 +110,7 @@ const IPVScreeningForm = () => {
 
             <div className="hc-section">
                 <h3>🏥 IPV Screening & Assessment</h3>
-                <p className="hc-subtitle">Comprehensive screening with 8 control types — Full Insert / Update / Delete / Search / Display</p>
+                <p className="hc-subtitle">Comprehensive screening  </p>
                 <div className="hc-search-bar">
                     <input className="hc-input" placeholder="Filter by Patient ID (e.g. PAT-001)..." value={filterPid} onChange={e => setFilterPid(e.target.value)} />
                     <button className="hc-btn hc-btn-primary" onClick={load}>Search</button>
@@ -226,7 +247,23 @@ const IPVScreeningForm = () => {
                     </div>
 
                     <div className="hc-section">
-                        <h3>Risk Assessment</h3>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                            <h3 style={{ margin: 0 }}>Risk Assessment</h3>
+                            <button type="button" className="hc-btn hc-btn-primary hc-btn-sm" onClick={calculateModel} disabled={isCalculatingModel} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                {isCalculatingModel ? (
+                                    <>
+                                        <div className="hc-spinner" style={{ width: 18, height: 18, borderWidth: 3, borderTopColor: '#fff' }} />
+                                        <span>Logistic Regression is running...</span>
+                                    </>
+                                ) : (
+                                    <><span>🧠</span> Run AI Logistic Regression</>
+                                )}
+                            </button>
+                            {isCalculatingModel && (
+                                <div className="hc-progress-anim"><div className="hc-progress-bar" /></div>
+                            )}
+                        </div>
+                        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
                         <div className="hc-grid">
                             <div><label className="hc-label">AI Risk Level</label><select className="hc-select" value={form.riskAssessment.aiRiskLevel} onChange={e => setForm({ ...form, riskAssessment: { ...form.riskAssessment, aiRiskLevel: e.target.value } })}><option value="LOW">LOW</option><option value="MEDIUM">MEDIUM</option><option value="HIGH">HIGH</option></select></div>
                             {/* 8. RANGE */}

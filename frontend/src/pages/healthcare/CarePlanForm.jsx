@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './HealthcareVisuals.css';
 
 const API = 'https://aram-ira2.onrender.com/api/healthcare';
 const hdrs = () => { const u = JSON.parse(localStorage.getItem('userInfo') || '{}'); return { 'Content-Type': 'application/json', Authorization: `Bearer ${u.token || ''}` }; };

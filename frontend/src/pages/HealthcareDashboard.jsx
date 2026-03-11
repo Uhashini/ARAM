@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
 import './RoleDashboard.css';
+import './healthcare/HealthcareVisuals.css';
 
 import PatientLookupForm from './healthcare/PatientLookupForm';
 import IPVScreeningForm from './healthcare/IPVScreeningForm';
@@ -17,7 +19,7 @@ const hdrs = () => {
 
 const RISK_COLORS = { HIGH: '#e74c3c', MEDIUM: '#f39c12', LOW: '#27ae60' };
 
-/* ── Dashboard Summary Tab with Charts ─────────────────────────────── */
+/*Dashboard Summary Tab with Charts*/
 const DashboardTab = () => {
   const [dash, setDash] = useState(null);
   const [metrics, setMetrics] = useState(null);
@@ -35,7 +37,20 @@ const DashboardTab = () => {
     })();
   }, []);
 
-  if (!dash) return <div className="hc-section" style={{ textAlign: 'center', padding: 40, color: '#7f8c8d' }}>Loading dashboard...</div>;
+  if (!dash) return (
+    <div className="hc-section" style={{ textAlign: 'center', padding: 40, color: '#7f8c8d', position: 'relative', minHeight: 200 }}>
+      <div className="hc-loading-spinner">
+        <div className="hc-spinner" />
+      </div>
+      <div style={{ marginTop: 18, fontWeight: 500, fontSize: 17 }}>Loading dashboard...</div>
+      {/* Decorative SVG graphic */}
+      <svg className="hc-dashboard-bg" width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="110" cy="110" r="100" fill="#3498db" fillOpacity="0.18" />
+        <circle cx="110" cy="110" r="70" fill="#27ae60" fillOpacity="0.13" />
+        <circle cx="110" cy="110" r="40" fill="#f39c12" fillOpacity="0.13" />
+      </svg>
+    </div>
+  );
 
   const riskDist = metrics?.risk?.distribution || [];
   const refByType = metrics?.referrals?.byType || [];
@@ -228,10 +243,16 @@ const HealthcareDashboard = () => {
   const ActiveComp = TABS.find(t => t.key === activeTab)?.Comp || DashboardTab;
 
   return (
-    <div className="role-dashboard">
+    <div className="role-dashboard" style={{ position: 'relative' }}>
+      {/* Decorative SVG background for dashboard */}
+      <svg className="hc-dashboard-bg" width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="110" cy="110" r="100" fill="#3498db" fillOpacity="0.18" />
+        <circle cx="110" cy="110" r="70" fill="#27ae60" fillOpacity="0.13" />
+        <circle cx="110" cy="110" r="40" fill="#f39c12" fillOpacity="0.13" />
+      </svg>
       <div className="role-dashboard__header">
         <h1>Healthcare Worker Dashboard</h1>
-        <p>Clinical tools for IPV screening, AI risk assessment, referrals, and patient care</p>
+        <p>Clinical tools for IPV screening, AI risk assessment, referrals and patient care</p>
       </div>
       <div className="role-dashboard__content">
         <div className="hc-tabs">
